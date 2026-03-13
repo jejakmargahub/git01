@@ -27,7 +27,9 @@ export default function middleware(req: NextRequest) {
     nextUrl.pathname.startsWith("/login") ||
     nextUrl.pathname.startsWith("/register");
   const isApiRoute = nextUrl.pathname.startsWith("/api");
-  const isPublicRoute = nextUrl.pathname === "/";
+  const isPublicRoute =
+    nextUrl.pathname === "/" ||
+    nextUrl.pathname.startsWith("/invite");
 
   if (isApiRoute) return NextResponse.next();
   if (isAuthPage) return NextResponse.next();
