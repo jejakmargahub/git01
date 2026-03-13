@@ -126,8 +126,8 @@ function buildTree(
 // Node dimensions – designed for 48dp+ touch targets
 const NODE_WIDTH = 180;
 const NODE_HEIGHT = 100;
-const NODE_MARGIN_X = 28;
-const NODE_MARGIN_Y = 64;
+const NODE_MARGIN_X = 100; // Increased to accommodate EditArrows
+const NODE_MARGIN_Y = 100; // Increased for better spacing
 const SPOUSE_GAP = 14;
 
 interface LayoutNode {
@@ -470,10 +470,10 @@ export default function FamilyTree({
   const trees = buildTree(members, relationships);
 
   // Layout all trees side by side
-  let currentX = 40;
+  let currentX = 120; // Start with more space
   const layouts: LayoutNode[] = [];
   trees.forEach((tree) => {
-    const layout = layoutTree(tree, currentX, 40);
+    const layout = layoutTree(tree, currentX, 120);
     layouts.push(layout);
     currentX += layout.width + NODE_MARGIN_X * 2;
   });
@@ -506,8 +506,8 @@ export default function FamilyTree({
   if (minX === Infinity) { minX = 0; maxX = 400; minY = 0; maxY = 300; }
 
   // Add extra padding specifically for the right side to prevent cutoff bugs
-  const PADDING = 60;
-  const RIGHT_PADDING = 100;
+  const PADDING = 120; // Increased to accommodate arrows (63px from edge)
+  const RIGHT_PADDING = 150;
   const contentWidth = maxX - minX + PADDING + RIGHT_PADDING;
   const contentHeight = maxY - minY + PADDING * 2;
 
@@ -525,10 +525,10 @@ export default function FamilyTree({
       const scale = Math.max(Math.min(idealScale, 1), 0.4);
       
       setTransform({
-        // Center horizontally
-        x: (containerWidth - contentWidth * scale) / 2 - (minX - PADDING) * scale,
-        // Align top (with 40px margin) so the root is always visible
-        y: 40 - (minY - PADDING) * scale,
+        // Center horizontally in container
+        x: (containerWidth - (maxX - minX + PADDING + RIGHT_PADDING / 2) * scale) / 2,
+        // Align top
+        y: 40,
         scale,
       });
     }
@@ -754,8 +754,9 @@ export default function FamilyTree({
     >
       <svg
         ref={svgRef}
-        width={Math.max(contentWidth, 1200)}
-        height={Math.max(contentHeight, 800)}
+        width={contentWidth}
+        height={contentHeight}
+        viewBox={`${minX - PADDING} ${minY - PADDING} ${contentWidth} ${contentHeight}`}
         style={{
           transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
           transformOrigin: "0 0",
