@@ -402,14 +402,42 @@ function EditArrows({
   y: number;
   onAdd: (type: "child" | "spouse" | "sibling" | "parent") => void;
 }) {
-  const DISTANCE = 45;
+  const DISTANCE = 55; // Slightly more distance for labels
   const ARROW_SIZE = 36;
 
   const arrows = [
-    { type: "parent" as const, lx: x + NODE_WIDTH / 2, ly: y - DISTANCE, icon: "☝️", label: "Orang Tua" },
-    { type: "child" as const, lx: x + NODE_WIDTH / 2, ly: y + NODE_HEIGHT + DISTANCE, icon: "👇", label: "Anak" },
-    { type: "sibling" as const, lx: x - DISTANCE, ly: y + NODE_HEIGHT / 2, icon: "👈", label: "Saudara" },
-    { type: "spouse" as const, lx: x + NODE_WIDTH + DISTANCE, ly: y + NODE_HEIGHT / 2, icon: "👉", label: "Pasangan" },
+    { 
+      type: "parent" as const, 
+      lx: x + NODE_WIDTH / 2, 
+      ly: y - DISTANCE, 
+      icon: "☝️", 
+      label: "Orang Tua",
+      labelPos: { x: 0, y: -25 }
+    },
+    { 
+      type: "child" as const, 
+      lx: x + NODE_WIDTH / 2, 
+      ly: y + NODE_HEIGHT + DISTANCE, 
+      icon: "👇", 
+      label: "Anak",
+      labelPos: { x: 0, y: 30 }
+    },
+    { 
+      type: "sibling" as const, 
+      lx: x - DISTANCE, 
+      ly: y + NODE_HEIGHT / 2, 
+      icon: "👈", 
+      label: "Saudara",
+      labelPos: { x: -45, y: 5 }
+    },
+    { 
+      type: "spouse" as const, 
+      lx: x + NODE_WIDTH + DISTANCE, 
+      ly: y + NODE_HEIGHT / 2, 
+      icon: "👉", 
+      label: "Pasangan",
+      labelPos: { x: 45, y: 5 }
+    },
   ];
 
   return (
@@ -423,6 +451,28 @@ function EditArrows({
           }}
           style={{ cursor: "pointer" }}
         >
+          {/* Label Background */}
+          <rect
+            x={a.lx + a.labelPos.x - 40}
+            y={a.ly + a.labelPos.y - 10}
+            width={80}
+            height={20}
+            rx={10}
+            fill="rgba(0,0,0,0.6)"
+          />
+          {/* Label Text */}
+          <text
+            x={a.lx + a.labelPos.x}
+            y={a.ly + a.labelPos.y + 4}
+            fontSize={10}
+            fill="white"
+            fontWeight="600"
+            textAnchor="middle"
+            style={{ pointerEvents: "none" }}
+          >
+            {a.label}
+          </text>
+          
           <circle
             cx={a.lx}
             cy={a.ly}
@@ -525,10 +575,9 @@ export default function FamilyTree({
       const scale = Math.max(Math.min(idealScale, 1), 0.4);
       
       setTransform({
-        // Center horizontally in container
-        x: (containerWidth - (maxX - minX + PADDING + RIGHT_PADDING / 2) * scale) / 2,
-        // Align top
-        y: 40,
+        // Calculate initial offset to center content
+        x: (containerWidth / 2) - ( (minX + maxX + NODE_WIDTH) / 2 ) * scale,
+        y: 60,
         scale,
       });
     }
@@ -754,15 +803,20 @@ export default function FamilyTree({
     >
       <svg
         ref={svgRef}
-        width={contentWidth}
-        height={contentHeight}
-        viewBox={`${minX - PADDING} ${minY - PADDING} ${contentWidth} ${contentHeight}`}
+        width="100%"
+        height="100%"
         style={{
-          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
-          transformOrigin: "0 0",
-          transition: isDragging ? "none" : "transform 0.1s ease",
+          cursor: isDragging ? "grabbing" : "grab",
+          touchAction: "none",
         }}
       >
+        <g
+          style={{
+            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.scale})`,
+            transformOrigin: "0 0",
+            transition: isDragging ? "none" : "transform 0.1s ease",
+          }}
+        >
         {/* Connection lines */}
         {layouts.map((layout) => drawLines(layout))}
 
@@ -822,6 +876,7 @@ export default function FamilyTree({
               })}
           </g>
         ))}
+        </g>
       </svg>
 
       {/* Zoom controls */}
