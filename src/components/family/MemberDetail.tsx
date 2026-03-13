@@ -1,6 +1,7 @@
 "use client";
 
 import type { FamilyMember } from "@/lib/db/schema";
+import { getOptimizedPhotoUrl } from "@/lib/imagekit";
 
 interface MemberDetailProps {
   member: FamilyMember;
@@ -71,7 +72,7 @@ export default function MemberDetail({
           {/* Avatar / Photo */}
           {member.photoUrl ? (
             <img
-              src={member.photoUrl}
+              src={getOptimizedPhotoUrl(member.photoUrl, 120, 120) || ""}
               alt={displayName}
               style={{
                 width: "56px",

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { ImageKitProvider } from "@imagekit/next";
+import { upload } from "@imagekit/next";
 
 interface MemberFormProps {
   familyId: string;
@@ -54,8 +56,11 @@ export default function MemberForm({
 
   // Photo states
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const ikUploadRef = useRef<HTMLInputElement>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(initialData?.photoUrl || "");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadedUrl, setUploadedUrl] = useState<string>(initialData?.photoUrl || "");
 
   const isEditing = !!initialData;
 
@@ -106,47 +111,18 @@ export default function MemberForm({
     });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setPhotoFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isUploading) return;
     setError("");
     setLoading(true);
 
     try {
       const formData = new FormData(e.currentTarget);
-      let finalPhotoUrl = initialData?.photoUrl || "";
-
-      // Handle photo upload first
-      if (photoFile) {
-        // Compress if larger than 1MB
-        const finalFile = photoFile.size > 1024 * 1024 ? await compressImage(photoFile) : photoFile;
-        
-        const uploadData = new FormData();
-        uploadData.append("file", finalFile);
-
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          body: uploadData,
-        });
-
-        if (!uploadRes.ok) {
-          const body = await uploadRes.json();
-          throw new Error(body.error || "Gagal mengunggah foto");
-        }
-
-        const data = await uploadRes.json();
-        finalPhotoUrl = data.url;
-      }
-
-      if (finalPhotoUrl) {
-        formData.append("photoUrl", finalPhotoUrl);
+      
+      // Use the URL from ImageKit upload or initial data
+      if (uploadedUrl) {
+        formData.append("photoUrl", uploadedUrl);
       }
 
       await onSubmit(familyId, formData, initialData?.id);
@@ -158,10 +134,54 @@ export default function MemberForm({
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPhotoFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      
+      // Auto-upload to ImageKit
+      setIsUploading(true);
+      setError("");
+      
+      try {
+        const authRes = await fetch("/api/imagekit/auth");
+        if (!authRes.ok) throw new Error("Gagal autentikasi ImageKit");
+        const authData = await authRes.json();
+        
+        // Manual upload using SDK's upload function
+        const result = await upload({
+          file: file,
+          fileName: `member_${Date.now()}`,
+          publicKey: process.env.NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY!,
+          signature: authData.signature,
+          token: authData.token,
+          expire: authData.expire,
+          folder: "/members"
+        });
+        
+        if ("url" in result) {
+          setUploadedUrl(result.url as string);
+          setPreviewUrl(result.url as string);
+        } else {
+          throw new Error("Gagal mendapatkan URL unggahan");
+        }
+      } catch (err) {
+        console.error("Upload error:", err);
+        setError("Gagal mengunggah foto ke ImageKit");
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
   return (
     <>
       <div className="bottom-sheet-overlay active" onClick={onClose} />
       <div className="bottom-sheet active" style={{ maxHeight: "90vh" }}>
+        <ImageKitProvider
+          urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}
+        >
         <div className="bottom-sheet-handle" />
         <h2
           style={{
@@ -212,29 +232,40 @@ export default function MemberForm({
                 justifyContent: "center",
                 fontSize: "24px",
                 color: "var(--muted)",
-                cursor: "pointer",
+                cursor: isUploading ? "not-allowed" : "pointer",
                 border: "2px solid var(--primary)",
                 flexShrink: 0,
+                position: "relative",
+                overflow: "hidden"
               }}
-              onClick={() => fileInputRef.current?.click()}
+              onClick={() => !isUploading && fileInputRef.current?.click()}
             >
-              {!previewUrl && "📷"}
+              {!previewUrl && !isUploading && "📷"}
+              {isUploading && (
+                <div style={{
+                  position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)",
+                  display: "flex", alignItems: "center", justifyContent: "center"
+                }}>
+                  <span className="spinner spinner-sm" style={{ borderTopColor: "white" }} />
+                </div>
+              )}
             </div>
             <div>
               <p style={{ margin: 0, fontWeight: "500", fontSize: "14px", color: "var(--foreground)" }}>Foto Profil</p>
-              <p style={{ margin: 0, fontSize: "12px", color: "var(--muted)" }}>Opsional. Ketuk ikon untuk mengganti foto.</p>
-              {previewUrl && (
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--muted)" }}>Layanan ImageKit Cloud.</p>
+              {(previewUrl || isUploading) && (
                 <button
                   type="button"
+                  disabled={isUploading}
                   onClick={() => {
-                    setPhotoFile(null);
+                    setUploadedUrl("");
                     setPreviewUrl("");
                   }}
                   style={{
-                    background: "none", border: "none", color: "var(--danger)", fontSize: "12px", padding: 0, marginTop: "4px", cursor: "pointer", fontWeight: "600"
+                    background: "none", border: "none", color: "var(--danger)", fontSize: "12px", padding: 0, marginTop: "4px", cursor: isUploading ? "not-allowed" : "pointer", fontWeight: "600"
                   }}
                 >
-                  Hapus Foto
+                  {isUploading ? "Mengunggah..." : "Hapus Foto"}
                 </button>
               )}
             </div>
@@ -501,6 +532,7 @@ export default function MemberForm({
             </button>
           </div>
         </form>
+        </ImageKitProvider>
       </div>
     </>
   );

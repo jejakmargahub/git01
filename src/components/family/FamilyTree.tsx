@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import type { FamilyMember, Relationship } from "@/lib/db/schema";
+import { getOptimizedPhotoUrl } from "@/lib/imagekit";
 
 interface TreeNode {
   member: FamilyMember;
@@ -308,16 +309,38 @@ function RenderNode({
         stroke={genderColor}
         strokeWidth={2.5}
       />
-      {/* Gender icon */}
-      <text
-        x={x + 14}
-        y={y + 22}
-        fontSize={18}
-        fill={genderColor}
-        fontWeight="bold"
-      >
-        {genderIcon}
-      </text>
+      {/* Avatar Image */}
+      {member.photoUrl && (
+        <clipPath id={`avatar-clip-${member.id}`}>
+          <circle cx={x + 28} cy={y + 35} r={20} />
+        </clipPath>
+      )}
+      {member.photoUrl ? (
+        <image
+          href={getOptimizedPhotoUrl(member.photoUrl, 40, 40) || ""}
+          x={x + 8}
+          y={y + 15}
+          width={40}
+          height={40}
+          preserveAspectRatio="xMidYMid slice"
+          clipPath={`url(#avatar-clip-${member.id})`}
+        />
+      ) : (
+        <circle cx={x + 28} cy={y + 35} r={20} fill="#f1f5f9" />
+      )}
+      {/* Gender icon overlay on avatar or circle */}
+      {!member.photoUrl && (
+        <text
+          x={x + 28}
+          y={y + 42}
+          fontSize={18}
+          fill={genderColor}
+          fontWeight="bold"
+          textAnchor="middle"
+        >
+          {genderIcon}
+        </text>
+      )}
       {/* Age badge (right side) */}
       {ageText && (
         <text
@@ -333,9 +356,9 @@ function RenderNode({
       )}
       {/* Name (nickname or fullName) */}
       <text
-        x={member.photoUrl ? x + 44 : x + 36}
-        y={y + 22}
-        fontSize={15}
+        x={x + 56}
+        y={y + 26}
+        fontSize={14}
         fontWeight="600"
         fill="#111827"
       >
@@ -346,20 +369,24 @@ function RenderNode({
       </text>
       {/* Full name (if nickname exists) */}
       {showFullName && (
-        <text x={x + 14} y={y + 38} fontSize={11} fill="#9ca3af">
+        <text x={x + 56} y={y + 42} fontSize={10} fill="#9ca3af">
           {truncatedFullName}
         </text>
       )}
       {/* Title */}
       {member.title && (
-        <text x={x + 14} y={y + (showFullName ? 54 : 48)} fontSize={12} fill="#6b7280">
+        <text x={x + 56} y={y + (showFullName ? 58: 48)} fontSize={11} fill="#6b7280">
           {member.title}
         </text>
       )}
-      {/* Phone */}
+      {/* Phone identifier dot (if exists) */}
       {member.phone && (
-        <text x={x + 14} y={y + (showFullName ? 72 : 68)} fontSize={11} fill="#6b7280">
-          📱 {member.phone}
+        <circle cx={x + 14} cy={y + NODE_HEIGHT - 14} r={3} fill="#059669" />
+      )}
+      {/* Small Phone Icon near dot (optional) */}
+      {member.phone && (
+        <text x={x + 20} y={y + NODE_HEIGHT - 11} fontSize={9} fill="#6b7280">
+          📱
         </text>
       )}
     </g>
