@@ -184,7 +184,7 @@ export default function LoginPage() {
         Masuk dengan Google
       </button>
 
-      {/* Register Link */}
+      {/* Register Link 
       <p
         style={{
           textAlign: "center",
@@ -205,6 +205,7 @@ export default function LoginPage() {
           Daftar di sini
         </Link>
       </p>
+      */}
     </div>
   );
 }
