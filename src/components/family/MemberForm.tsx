@@ -17,6 +17,11 @@ interface MemberFormProps {
     phone: string | null;
     bio: string | null;
   };
+  quickAddContext?: {
+    sourceMemberId: string;
+    relationType: "child" | "spouse" | "sibling" | "parent";
+    sourceGender?: string;
+  } | null;
   onSubmit: (familyId: string, formData: FormData, memberId?: string) => Promise<void>;
   onClose: () => void;
 }
@@ -38,6 +43,7 @@ const TITLE_SUGGESTIONS = [
 export default function MemberForm({
   familyId,
   initialData,
+  quickAddContext,
   onSubmit,
   onClose,
 }: MemberFormProps) {
@@ -296,7 +302,12 @@ export default function MemberForm({
               id="gender"
               name="gender"
               className="input-field"
-              defaultValue={initialData?.gender || ""}
+              defaultValue={
+                initialData?.gender || 
+                (quickAddContext?.relationType === "spouse" 
+                  ? (quickAddContext.sourceGender === "M" ? "F" : "M") 
+                  : "")
+              }
               required
             >
               <option value="" disabled>
@@ -306,6 +317,25 @@ export default function MemberForm({
               <option value="F">♀ Perempuan</option>
             </select>
           </div>
+
+          {/* Context Info */}
+          {quickAddContext && (
+             <div style={{
+               background: "var(--input-bg)",
+               padding: "10px 12px",
+               borderRadius: "var(--radius-sm)",
+               fontSize: "13px",
+               borderLeft: "4px solid var(--primary)",
+               color: "var(--muted)"
+             }}>
+               Menambah <strong>{
+                 quickAddContext.relationType === "child" ? "Anak" :
+                 quickAddContext.relationType === "spouse" ? "Pasangan (Suami/Istri)" :
+                 quickAddContext.relationType === "sibling" ? "Saudara Kandung" :
+                 "Orang Tua (Ayah/Ibu)"
+               }</strong>
+             </div>
+          )}
 
           {/* Istilah/Jabatan */}
           <div className="input-group" style={{ position: "relative" }}>

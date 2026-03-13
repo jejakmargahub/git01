@@ -41,6 +41,12 @@ export default function FamilyPageClient({
   const [showRelationshipDialog, setShowRelationshipDialog] = useState(false);
   const [relationshipMember, setRelationshipMember] = useState<FamilyMember | null>(null);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [quickAddContext, setQuickAddContext] = useState<{
+    sourceMemberId: string;
+    relationType: "child" | "spouse" | "sibling" | "parent";
+    sourceGender?: string;
+  } | null>(null);
 
   const canEdit = userRole === "admin" || userRole === "editor";
   const isAdmin = userRole === "admin";
@@ -72,7 +78,49 @@ export default function FamilyPageClient({
     familyId: string,
     formData: FormData
   ) => {
-    await createMember(familyId, formData);
+    const newMember = await createMember(familyId, formData);
+    
+    if (quickAddContext && newMember) {
+      const { sourceMemberId, relationType } = quickAddContext;
+      
+      try {
+        if (relationType === "child") {
+          // Add relationship from source (parent) to new (child)
+          await addRelationship(familyId, sourceMemberId, newMember.id, "parent");
+        } else if (relationType === "spouse") {
+          await addRelationship(familyId, sourceMemberId, newMember.id, "spouse");
+        } else if (relationType === "parent") {
+          // Add relationship from new (parent) to source (child)
+          await addRelationship(familyId, newMember.id, sourceMemberId, "parent");
+        } else if (relationType === "sibling") {
+          // Find parents of source member
+          const sourceRels = await getMemberRelationships(familyId, sourceMemberId);
+          const parents = sourceRels.filter(r => r.relationType === "parent" && r.relatedMember.id !== sourceMemberId);
+          // Note: andRelationship is bidirectional for spouse/child but we need to be careful with the "from" member.
+          // Actually relationships are stored as (from, to, type).
+          // If R is parent-child, then from is parent, to is child.
+          
+          // Let's re-fetch relationships to be sure about parents
+          const allRels = await getMemberRelationships(familyId, sourceMemberId);
+          // Parents of sourceMember are those where sourceMember is the child.
+          // In our DB schema, if r.relationType === 'parent', from is parent, to is child.
+          // Wait, getMemberRelationships returns relatedMember.
+          
+          // Simpler: Just look for relationships in the 'relationships' prop we already have
+          const parentsOfSource = relationships
+            .filter(r => r.toMemberId === sourceMemberId && r.relationType === "parent")
+            .map(r => r.fromMemberId);
+          
+          for (const parentId of parentsOfSource) {
+            await addRelationship(familyId, parentId, newMember.id, "parent");
+          }
+        }
+      } catch (err) {
+        console.error("Gagal membuat relasi otomatis:", err);
+      }
+      setQuickAddContext(null);
+    }
+    
     router.refresh();
   };
 
@@ -194,6 +242,32 @@ export default function FamilyPageClient({
               </button>
             )}
 
+            {/* Edit Mode Toggle */}
+            {canEdit && viewMode === "tree" && (
+              <button
+                onClick={() => {
+                  setIsEditMode(!isEditMode);
+                  setSelectedMember(null);
+                }}
+                style={{
+                  padding: "6px 12px",
+                  borderRadius: "6px",
+                  border: isEditMode ? "1px solid var(--primary)" : "1px solid var(--card-border)",
+                  background: isEditMode ? "rgba(var(--primary-rgb), 0.1)" : "var(--card)",
+                  color: isEditMode ? "var(--primary)" : "var(--muted)",
+                  fontWeight: "600",
+                  fontSize: "13px",
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <span>{isEditMode ? "✏️ Mode Edit (Aktif)" : "✏️ Mode Edit"}</span>
+              </button>
+            )}
+
             {/* View toggle */}
             <div
             style={{
@@ -257,7 +331,18 @@ export default function FamilyPageClient({
         <FamilyTree
           members={members}
           relationships={relationships}
-          onNodeClick={handleNodeClick}
+          onNodeClick={isEditMode ? undefined : handleNodeClick}
+          isEditMode={isEditMode}
+          onQuickAdd={(sourceId, type) => {
+            const source = members.find(m => m.id === sourceId);
+            setQuickAddContext({ 
+              sourceMemberId: sourceId, 
+              relationType: type,
+              sourceGender: source?.gender
+            });
+            setEditingMember(null);
+            setShowMemberForm(true);
+          }}
         />
       ) : (
         <div className="page-content">
@@ -386,10 +471,12 @@ export default function FamilyPageClient({
                 }
               : undefined
           }
+          quickAddContext={quickAddContext}
           onSubmit={editingMember ? handleUpdateMember : handleCreateMember}
           onClose={() => {
             setShowMemberForm(false);
             setEditingMember(null);
+            setQuickAddContext(null);
           }}
         />
       )}

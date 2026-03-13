@@ -12,7 +12,9 @@ interface TreeNode {
 interface FamilyTreeProps {
   members: FamilyMember[];
   relationships: Relationship[];
-  onNodeClick: (memberId: string) => void;
+  onNodeClick?: (memberId: string) => void;
+  isEditMode?: boolean;
+  onQuickAdd?: (sourceId: string, type: "child" | "spouse" | "sibling" | "parent") => void;
 }
 
 function buildTree(
@@ -364,10 +366,66 @@ function RenderNode({
   );
 }
 
+function EditArrows({
+  x,
+  y,
+  onAdd,
+}: {
+  x: number;
+  y: number;
+  onAdd: (type: "child" | "spouse" | "sibling" | "parent") => void;
+}) {
+  const DISTANCE = 45;
+  const ARROW_SIZE = 36;
+
+  const arrows = [
+    { type: "parent" as const, lx: x + NODE_WIDTH / 2, ly: y - DISTANCE, icon: "☝️", label: "Orang Tua" },
+    { type: "child" as const, lx: x + NODE_WIDTH / 2, ly: y + NODE_HEIGHT + DISTANCE, icon: "👇", label: "Anak" },
+    { type: "sibling" as const, lx: x - DISTANCE, ly: y + NODE_HEIGHT / 2, icon: "👈", label: "Saudara" },
+    { type: "spouse" as const, lx: x + NODE_WIDTH + DISTANCE, ly: y + NODE_HEIGHT / 2, icon: "👉", label: "Pasangan" },
+  ];
+
+  return (
+    <g className="animate-fade-in">
+      {arrows.map((a) => (
+        <g
+          key={a.type}
+          onClick={(e) => {
+            e.stopPropagation();
+            onAdd(a.type);
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          <circle
+            cx={a.lx}
+            cy={a.ly}
+            r={ARROW_SIZE / 2}
+            fill="var(--card)"
+            stroke="var(--primary)"
+            strokeWidth={1.5}
+            style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
+          />
+          <text
+            x={a.lx}
+            y={a.ly + 5}
+            fontSize={16}
+            textAnchor="middle"
+            style={{ userSelect: "none" }}
+          >
+            {a.icon}
+          </text>
+        </g>
+      ))}
+    </g>
+  );
+}
+
 export default function FamilyTree({
   members,
   relationships,
   onNodeClick,
+  isEditMode = false,
+  onQuickAdd,
 }: FamilyTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -375,6 +433,12 @@ export default function FamilyTree({
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [selectedEditNode, setSelectedEditNode] = useState<string | null>(null);
+
+  // Clear selection if edit mode is turned off
+  useEffect(() => {
+    if (!isEditMode) setSelectedEditNode(null);
+  }, [isEditMode]);
 
   const trees = buildTree(members, relationships);
 
@@ -681,19 +745,53 @@ export default function FamilyTree({
               member={layoutNode.node.member}
               x={layoutNode.x}
               y={layoutNode.y}
-              onClick={() => onNodeClick(layoutNode.node.member.id)}
+              onClick={() => {
+                if (isEditMode) {
+                  setSelectedEditNode(selectedEditNode === layoutNode.node.member.id ? null : layoutNode.node.member.id);
+                } else if (onNodeClick) {
+                  onNodeClick(layoutNode.node.member.id);
+                }
+              }}
             />
+            {/* Edit Arrows for Main Node */}
+            {isEditMode && selectedEditNode === layoutNode.node.member.id && (
+              <EditArrows
+                x={layoutNode.x}
+                y={layoutNode.y}
+                onAdd={(type) => onQuickAdd?.(layoutNode.node.member.id, type)}
+              />
+            )}
+
             {/* Spouse nodes */}
             {layoutNode.spouseX !== undefined &&
-              layoutNode.node.spouses.map((spouse, i) => (
-                <RenderNode
-                  key={spouse.id}
-                  member={spouse}
-                  x={layoutNode.spouseX! + i * (NODE_WIDTH + SPOUSE_GAP)}
-                  y={layoutNode.y}
-                  onClick={() => onNodeClick(spouse.id)}
-                />
-              ))}
+              layoutNode.node.spouses.map((spouse, i) => {
+                const sx = layoutNode.spouseX! + i * (NODE_WIDTH + SPOUSE_GAP);
+                const sy = layoutNode.y;
+                return (
+                  <g key={spouse.id}>
+                    <RenderNode
+                      member={spouse}
+                      x={sx}
+                      y={sy}
+                      onClick={() => {
+                        if (isEditMode) {
+                          setSelectedEditNode(selectedEditNode === spouse.id ? null : spouse.id);
+                        } else if (onNodeClick) {
+                          onNodeClick(spouse.id);
+                        }
+                      }}
+                    />
+                    {/* Edit Arrows for Spouse */}
+                    {isEditMode && selectedEditNode === spouse.id && (
+                      <EditArrows
+                        x={sx}
+                        y={sy}
+                        onAdd={(type) => onQuickAdd?.(spouse.id, type)}
+                      />
+                    )}
+                  </g>
+                );
+              })}
           </g>
         ))}
       </svg>
