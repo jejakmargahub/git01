@@ -183,6 +183,26 @@ export default function LoginPage() {
         Masuk dengan Google
       </button>
 
+      {/* REGISTER BUTTON */}
+      <div style={{ marginTop: "8px" }}>
+        <Link 
+          href="/register" 
+          className="btn btn-full"
+          style={{ 
+            background: "transparent",
+            border: "2px solid var(--primary)",
+            color: "var(--primary)",
+            fontWeight: "600",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textDecoration: "none"
+          }}
+        >
+          ✨ Daftar Akun Baru (Email / No. HP)
+        </Link>
+      </div>
+
       {/* EMERGENCY BYPASS */}
       <div style={{ marginTop: "16px", marginBottom: "8px" }}>
         <button
@@ -194,7 +214,10 @@ export default function LoginPage() {
           style={{
             background: "repeating-linear-gradient(45deg, #f59e0b, #f59e0b 10px, #fbbf24 10px, #fbbf24 20px)",
             color: "black",
-            fontWeight: "bold"
+            fontWeight: "bold",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
           }}
           type="button"
         >

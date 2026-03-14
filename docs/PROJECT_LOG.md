@@ -113,7 +113,7 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
 | `src/lib/db/schema.ts` | 6 tabel + relations |
 | `src/lib/pusher.ts` | Config Pusher (Lazy Loaded) |
 | `src/lib/actions/chat.ts` | Server Actions: Chat CRUD |
-| `src/middleware.ts` | Route protection |
+| `src/proxy.ts` | Route protection & Bypass (Convention Next.js 16) |
 
 ---
 
