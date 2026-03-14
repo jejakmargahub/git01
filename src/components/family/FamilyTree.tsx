@@ -250,21 +250,7 @@ function RenderNode({
   const genderIcon = member.gender === "M" ? "♂" : "♀";
   const genderColor = member.gender === "M" ? "#60a5fa" : "#f472b6";
   const deceasedPrefix = member.gender === "M" ? "Alm." : "Almh.";
-  const displayName = member.nickname || member.fullName;
   
-  let maxNameLength = 14;
-  if (member.photoUrl) maxNameLength -= 3;
-  if (member.mandarinName) maxNameLength -= member.mandarinName.length + 1;
-  if (isDeceased) maxNameLength -= 3;
-  if (maxNameLength < 5) maxNameLength = 5;
-
-  const truncatedName =
-    displayName.length > maxNameLength ? displayName.substring(0, maxNameLength) + "…" : displayName;
-  const showFullName = member.nickname && member.nickname !== member.fullName;
-  const truncatedFullName = member.fullName.length > 20
-    ? member.fullName.substring(0, 20) + "…"
-    : member.fullName;
-
   // Calculate age
   let ageText = "";
   if (member.birthDate) {
@@ -341,7 +327,7 @@ function RenderNode({
           {genderIcon}
         </text>
       )}
-      {/* Age badge (top right corner) */}
+      {/* Age badge (top right corner) - ensure it's on top */}
       {ageText && (
         <g>
           <rect
@@ -350,13 +336,13 @@ function RenderNode({
             width={40}
             height={16}
             rx={8}
-            fill={isDeceased ? "#f3f4f6" : "#ecfdf5"}
+            fill={isDeceased ? "#e5e7eb" : "#ecfdf5"}
           />
           <text
             x={x + NODE_WIDTH - 25}
             y={y + 17}
             fontSize={9}
-            fill={isDeceased ? "#9ca3af" : "#059669"}
+            fill={isDeceased ? "#6b7280" : "#059669"}
             fontWeight="700"
             textAnchor="middle"
           >
@@ -365,51 +351,55 @@ function RenderNode({
         </g>
       )}
 
-      {/* Name area with wrapping */}
+      {/* NEW Consolidated UI: Consolidates name, nickname, and title into a single wrapped block */}
       <foreignObject
         x={x + 56}
-        y={y + 12}
+        y={y + 8}
         width={NODE_WIDTH - 64}
-        height={50}
+        height={84}
       >
-        <div style={{
-          fontSize: "13px",
-          fontWeight: "600",
-          color: "#111827",
-          lineHeight: "1.2",
-          display: "-webkit-box",
-          WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical",
-          overflow: "hidden",
-          textAlign: "left"
-        }}>
-          {isDeceased ? `${deceasedPrefix} ` : ""}
-          {member.fullName}
-          {member.mandarinName ? `, ${member.mandarinName}` : ""}
-          {isDeceased ? " 🌼" : ""}
+        <div 
+          style={{
+            fontSize: "13px",
+            color: "#111827",
+            lineHeight: "1.3",
+            wordWrap: "break-word",
+            wordBreak: "break-word",
+            textAlign: "left",
+            display: "block",
+            fontFamily: "inherit",
+            height: "100%",
+            overflow: "hidden"
+          }}
+        >
+          {/* Main Name + Mandarin */}
+          <div style={{ fontWeight: "700", marginBottom: "2px" }}>
+            {isDeceased ? `${deceasedPrefix} ` : ""}
+            {member.fullName}
+            {member.mandarinName ? `, ${member.mandarinName}` : ""}
+            {isDeceased ? " 🌼" : ""}
+          </div>
+          
+          {/* Secondary Info: Nickname & Title consolidated to prevent overlap */}
+          <div style={{ fontSize: "10px", color: "#6b7280", fontWeight: "400", lineHeight: "1.2" }}>
+            {member.nickname && member.nickname !== member.fullName && (
+              <div style={{ opacity: 0.8 }}>Panggilan: {member.nickname}</div>
+            )}
+            {member.title && (
+              <div style={{ fontStyle: "italic", marginTop: "1px" }}>{member.title}</div>
+            )}
+          </div>
         </div>
       </foreignObject>
-      {/* Title */}
-      {member.title && (
-        <text 
-          x={x + 56} 
-          y={y + 72} 
-          fontSize={11} 
-          fill="#6b7280"
-          fontStyle="italic"
-        >
-          {member.title}
-        </text>
-      )}
-      {/* Phone identifier dot (if exists) */}
+
+      {/* Indicators at bottom */}
       {member.phone && (
-        <circle cx={x + 14} cy={y + NODE_HEIGHT - 14} r={3} fill="#059669" />
-      )}
-      {/* Small Phone Icon near dot (optional) */}
-      {member.phone && (
-        <text x={x + 20} y={y + NODE_HEIGHT - 11} fontSize={9} fill="#6b7280">
-          📱
-        </text>
+        <g>
+          <circle cx={x + 14} cy={y + NODE_HEIGHT - 14} r={3} fill="#059669" />
+          <text x={x + 20} y={y + NODE_HEIGHT - 11} fontSize={9} fill="#6b7280">
+            📱
+          </text>
+        </g>
       )}
     </g>
   );
