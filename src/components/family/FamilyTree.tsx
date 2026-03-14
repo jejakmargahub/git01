@@ -341,41 +341,63 @@ function RenderNode({
           {genderIcon}
         </text>
       )}
-      {/* Age badge (right side) */}
+      {/* Age badge (top right corner) */}
       {ageText && (
-        <text
-          x={x + NODE_WIDTH - 12}
-          y={y + 18}
-          fontSize={10}
-          fill={isDeceased ? "#9ca3af" : "#059669"}
-          fontWeight="600"
-          textAnchor="end"
-        >
-          {ageText}
-        </text>
+        <g>
+          <rect
+            x={x + NODE_WIDTH - 45}
+            y={y + 6}
+            width={40}
+            height={16}
+            rx={8}
+            fill={isDeceased ? "#f3f4f6" : "#ecfdf5"}
+          />
+          <text
+            x={x + NODE_WIDTH - 25}
+            y={y + 17}
+            fontSize={9}
+            fill={isDeceased ? "#9ca3af" : "#059669"}
+            fontWeight="700"
+            textAnchor="middle"
+          >
+            {ageText}
+          </text>
+        </g>
       )}
-      {/* Name (nickname or fullName) */}
-      <text
+
+      {/* Name area with wrapping */}
+      <foreignObject
         x={x + 56}
-        y={y + 26}
-        fontSize={14}
-        fontWeight="600"
-        fill="#111827"
+        y={y + 12}
+        width={NODE_WIDTH - 64}
+        height={50}
       >
-        {isDeceased ? `${deceasedPrefix} ` : ""}
-        {truncatedName}
-        {member.mandarinName ? ` ${member.mandarinName}` : ""}
-        {isDeceased ? " 🌼" : ""}
-      </text>
-      {/* Full name (if nickname exists) */}
-      {showFullName && (
-        <text x={x + 56} y={y + 42} fontSize={10} fill="#9ca3af">
-          {truncatedFullName}
-        </text>
-      )}
+        <div style={{
+          fontSize: "13px",
+          fontWeight: "600",
+          color: "#111827",
+          lineHeight: "1.2",
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+          textAlign: "left"
+        }}>
+          {isDeceased ? `${deceasedPrefix} ` : ""}
+          {member.fullName}
+          {member.mandarinName ? `, ${member.mandarinName}` : ""}
+          {isDeceased ? " 🌼" : ""}
+        </div>
+      </foreignObject>
       {/* Title */}
       {member.title && (
-        <text x={x + 56} y={y + (showFullName ? 58: 48)} fontSize={11} fill="#6b7280">
+        <text 
+          x={x + 56} 
+          y={y + 72} 
+          fontSize={11} 
+          fill="#6b7280"
+          fontStyle="italic"
+        >
           {member.title}
         </text>
       )}
