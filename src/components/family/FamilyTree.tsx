@@ -682,6 +682,12 @@ export default function FamilyTree({
       scale: Math.max(prev.scale * 0.8, 0.2),
     }));
 
+  function getNodeMidpoint(layout: LayoutNode): number {
+    return layout.spouseX !== undefined
+      ? (layout.x + NODE_WIDTH + layout.spouseX) / 2
+      : layout.x + NODE_WIDTH / 2;
+  }
+
   // Draw connection lines
   function drawLines(layout: LayoutNode): React.ReactNode[] {
     const lines: React.ReactNode[] = [];
@@ -708,10 +714,7 @@ export default function FamilyTree({
 
     // Parent to children connectors
     if (layout.children.length > 0) {
-      const parentCenterX =
-        layout.spouseX !== undefined
-          ? (layout.x + NODE_WIDTH + layout.spouseX) / 2
-          : layout.x + NODE_WIDTH / 2;
+      const parentCenterX = getNodeMidpoint(layout);
       const parentBottomY = layout.y + NODE_HEIGHT;
       const midY =
         (parentBottomY + layout.children[0].y) / 2;
@@ -731,9 +734,8 @@ export default function FamilyTree({
 
       // Horizontal line connecting children
       if (layout.children.length > 1) {
-        const leftX = layout.children[0].x + NODE_WIDTH / 2;
-        const rightX =
-          layout.children[layout.children.length - 1].x + NODE_WIDTH / 2;
+        const leftX = getNodeMidpoint(layout.children[0]);
+        const rightX = getNodeMidpoint(layout.children[layout.children.length - 1]);
         lines.push(
           <line
             key={`children-h-${layout.node.member.id}`}
@@ -749,7 +751,7 @@ export default function FamilyTree({
 
       // Vertical lines from horizontal bar to each child
       layout.children.forEach((child) => {
-        const childCenterX = child.x + NODE_WIDTH / 2;
+        const childCenterX = getNodeMidpoint(child);
         lines.push(
           <line
             key={`child-down-${child.node.member.id}`}
