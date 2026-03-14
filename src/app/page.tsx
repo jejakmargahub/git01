@@ -68,7 +68,7 @@ export default async function Home() {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full mx-auto mt-32 text-left mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl w-full mx-auto mt-32 text-left mb-12">
           <div className="card hover:-translate-y-1 transition-transform border-t-4 border-t-primary">
             <div className="text-3xl mb-4">🔐</div>
             <h3 className="text-xl font-bold mb-2">Privasi Terjaga</h3>
@@ -80,6 +80,11 @@ export default async function Home() {
             <p className="text-muted text-sm leading-relaxed">Didesain khusus untuk optimal di semua perangkat. Masuk dengan mudah menggunakan Nomor Handphone dan kode PIN saja.</p>
           </div>
           <div className="card hover:-translate-y-1 transition-transform border-t-4 border-t-success">
+            <div className="text-3xl mb-4">💬</div>
+            <h3 className="text-xl font-bold mb-2">Chat Keluarga</h3>
+            <p className="text-muted text-sm leading-relaxed">Diskusikan silsilah atau berbagi kenangan secara real-time melalui ruang chat pribadi yang terintegrasi di setiap keluarga.</p>
+          </div>
+          <div className="card hover:-translate-y-1 transition-transform border-t-4 border-t-purple-500">
             <div className="text-3xl mb-4">🔗</div>
             <h3 className="text-xl font-bold mb-2">Kolaborasi Tautan</h3>
             <p className="text-muted text-sm leading-relaxed">Cukup bagikan tautan kode unik untuk mengajak kerabat jauh bergabung, memastikan setiap cabang keluarga terlengkapi.</p>
