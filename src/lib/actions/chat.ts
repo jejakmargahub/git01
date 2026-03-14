@@ -9,7 +9,12 @@ import { getPusherServer } from "@/lib/pusher";
 /**
  * Send a message to the family chat
  */
-export async function sendMessage(familyId: string, content: string) {
+/**
+ * Send a message to the family chat
+ * NOTE: guestName is temporary for testing shared sessions (bypass).
+ * To remove: Delete guestName param and the if block that modifies finalContent.
+ */
+export async function sendMessage(familyId: string, content: string, guestName?: string) {
   const session = await auth();
   if (!session?.user?.id) throw new Error("Unauthorized");
 
@@ -23,13 +28,19 @@ export async function sendMessage(familyId: string, content: string) {
 
   if (!access) throw new Error("No access to this family chat");
 
+  // Temporary: Prepend name if guestName is provided for testing
+  let finalContent = content;
+  if (guestName) {
+    finalContent = `[${guestName}]: ${content}`;
+  }
+
   // Save to DB
   const [newMessage] = await db
     .insert(messages)
     .values({
       familyId,
       senderId: session.user.id,
-      content,
+      content: finalContent,
     })
     .returning();
 
@@ -37,7 +48,7 @@ export async function sendMessage(familyId: string, content: string) {
     ...newMessage,
     sender: {
       id: session.user.id,
-      fullName: session.user.name || "Unknown",
+      fullName: guestName || session.user.name || "Unknown",
       image: session.user.image,
     },
   };
