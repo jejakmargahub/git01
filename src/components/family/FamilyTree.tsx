@@ -123,12 +123,12 @@ function buildTree(
   return trees;
 }
 
-// Node dimensions – enlarged to accommodate longer names and prevent clipping
-const NODE_WIDTH = 220;
-const NODE_HEIGHT = 120;
-const NODE_MARGIN_X = 140;
-const NODE_MARGIN_Y = 120;
-const SPOUSE_GAP = 14;
+// Node dimensions – further enlarged to accommodate long names and prevent overlaps
+const NODE_WIDTH = 260;
+const NODE_HEIGHT = 140;
+const NODE_MARGIN_X = 180; 
+const NODE_MARGIN_Y = 150;
+const SPOUSE_GAP = 50; 
 
 interface LayoutNode {
   node: TreeNode;
@@ -145,8 +145,8 @@ function layoutTree(
   startY: number
 ): LayoutNode {
   const hasSpouse = tree.spouses.length > 0;
-  // Calculate total width needed for the node + ALL its spouses
-  const nodeWidth = hasSpouse
+  // Total width of the parent block (parent + all spouses)
+  const spouseBlockWidth = hasSpouse
     ? NODE_WIDTH + (tree.spouses.length * (NODE_WIDTH + SPOUSE_GAP))
     : NODE_WIDTH;
 
@@ -155,7 +155,7 @@ function layoutTree(
       node: tree,
       x: startX,
       y: startY,
-      width: nodeWidth,
+      width: spouseBlockWidth,
       children: [],
       spouseX: hasSpouse ? startX + NODE_WIDTH + SPOUSE_GAP : undefined,
     };
@@ -174,42 +174,27 @@ function layoutTree(
     childX += layoutChild.width + NODE_MARGIN_X;
   });
 
-  // Calculate total children width
+  // Calculate total children width span
   const totalChildrenWidth =
     laidOutChildren.reduce((sum, c) => sum + c.width, 0) +
     (laidOutChildren.length - 1) * NODE_MARGIN_X;
 
-  // Center parent over children
+  // Center the ENTIRE parent block (including spouses) over children
   const firstChild = laidOutChildren[0];
   const lastChild = laidOutChildren[laidOutChildren.length - 1];
+  const childrenSpanCenter = (firstChild.x + lastChild.x + lastChild.width) / 2;
   
-  // Center point of the children
-  const childrenCenter = (firstChild.x + lastChild.x + lastChild.width) / 2;
-  let parentX = childrenCenter - nodeWidth / 2;
+  let parentX = childrenSpanCenter - spouseBlockWidth / 2;
 
-  // Ensure parent + spouses don't hang off the right side uncomfortably
-  // If the parent structure is wider than the children's span, the right edge 
-  // might get clipped in some scenarios depending on sibling positioning.
-  const childrenRight = lastChild.x + lastChild.width;
-  if (parentX + nodeWidth > Math.max(childrenRight, startX + totalChildrenWidth)) {
-    // If the spouse block ends further right than the rightmost child + padding,
-    // we shift the parent slightly to the left to keep it compact visually, or
-    // handle it so it doesn't break out of the calculated SVGBounds cleanly.
+  // Ensure parentX doesn't shift tree to the left of startX
+  if (parentX < startX) {
+    const shift = startX - parentX;
     parentX = startX;
+    // Shift all children to maintain centering relative to parent
+    laidOutChildren.forEach(c => updateXPositions(c, shift));
   }
-  
-  // Ensure we don't go left of startX
-  parentX = Math.max(startX, parentX);
 
-  const totalWidth = Math.max(totalChildrenWidth, nodeWidth);
-
-  // Shift children if parent is forced further right due to Math.max(startX, ...)
-  if (parentX > startX) {
-     const shift = parentX - (childrenCenter - nodeWidth / 2);
-     if (shift > 0) {
-        laidOutChildren.forEach(c => updateXPositions(c, shift));
-     }
-  }
+  const totalWidth = Math.max(totalChildrenWidth, spouseBlockWidth);
 
   return {
     node: tree,
@@ -229,6 +214,10 @@ function updateXPositions(node: LayoutNode, shift: number) {
 
 function getAllNodes(layout: LayoutNode): LayoutNode[] {
   const result: LayoutNode[] = [layout];
+  
+  // Also collect spouses as ghost nodes for layout calculations if needed
+  // but for now RenderNode handles them separately in the map at the bottom.
+  
   layout.children.forEach((child) => {
     result.push(...getAllNodes(child));
   });
@@ -327,21 +316,21 @@ function RenderNode({
           {genderIcon}
         </text>
       )}
-      {/* Age badge (top right corner) - ensure it's on top and doesn't overlap with name start */}
+      {/* Age badge (top right corner) - moved further right and improved styling */}
       {ageText && (
         <g>
           <rect
-            x={x + NODE_WIDTH - 50}
-            y={y + 6}
-            width={44}
-            height={16}
-            rx={8}
+            x={x + NODE_WIDTH - 55}
+            y={y + 8}
+            width={48}
+            height={18}
+            rx={9}
             fill={isDeceased ? "#e5e7eb" : "#ecfdf5"}
           />
           <text
-            x={x + NODE_WIDTH - 28}
-            y={y + 17}
-            fontSize={9}
+            x={x + NODE_WIDTH - 31}
+            y={y + 20}
+            fontSize={10}
             fill={isDeceased ? "#6b7280" : "#059669"}
             fontWeight="700"
             textAnchor="middle"
@@ -351,37 +340,37 @@ function RenderNode({
         </g>
       )}
 
-      {/* NEW Consolidated UI: Consolidates name, mandarin name, nickname, and title into a single wrapped block */}
+      {/* NEW Consolidated UI: Using an explicit XHTML namespace and robust wrapping CSS */}
       <foreignObject
-        x={x + 56}
-        y={y + 8}
-        width={NODE_WIDTH - 106} // Reduced width slightly more to leave clear space for the age badge on the right
-        height={NODE_HEIGHT - 16}
+        x={x + 60}
+        y={y + 12}
+        width={NODE_WIDTH - 110}
+        height={NODE_HEIGHT - 24}
       >
         <div 
           style={{
-            fontSize: "13px",
+            fontSize: "14px",
             color: "#111827",
-            lineHeight: "1.3",
+            lineHeight: "1.4",
             wordWrap: "break-word",
             wordBreak: "break-word",
+            whiteSpace: "normal !important",
             textAlign: "left",
             display: "block",
             fontFamily: "inherit",
-            overflow: "hidden",
-            maxHeight: "100%"
+            overflow: "visible"
           }}
         >
-          {/* Main Name + Mandarin */}
-          <div style={{ fontWeight: "700", marginBottom: "4px", paddingRight: "4px" }}>
+          {/* Main Name + Mandarin - Ensure it is the primary focus */}
+          <div style={{ fontWeight: "700", marginBottom: "4px" }}>
             {isDeceased ? `${deceasedPrefix} ` : ""}
             {member.fullName}
-            {member.mandarinName ? `, ${member.mandarinName}` : ""}
+            {member.mandarinName ? ` (${member.mandarinName})` : ""}
             {isDeceased ? " 🌼" : ""}
           </div>
           
-          {/* Secondary Info: Nickname & Title consolidated to prevent overlap */}
-          <div style={{ fontSize: "10px", color: "#6b7280", fontWeight: "400", lineHeight: "1.2" }}>
+          {/* Secondary Info: Nickname & Title */}
+          <div style={{ fontSize: "11px", color: "#6b7280", fontWeight: "400", lineHeight: "1.2" }}>
             {member.nickname && member.nickname !== member.fullName && (
               <div style={{ opacity: 0.8 }}>Panggilan: {member.nickname}</div>
             )}
