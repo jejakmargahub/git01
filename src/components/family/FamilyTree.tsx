@@ -174,16 +174,19 @@ function layoutTree(
     childX += layoutChild.width + NODE_MARGIN_X;
   });
 
-  // Calculate total children width span
+  // Calculate total children width span (for layout purposes)
   const totalChildrenWidth =
     laidOutChildren.reduce((sum, c) => sum + c.width, 0) +
     (laidOutChildren.length - 1) * NODE_MARGIN_X;
 
-  // Center the ENTIRE parent block (including spouses) over children
+  // Center the parent block over the children's own card midpoints (NOT their branch widths)
   const firstChild = laidOutChildren[0];
   const lastChild = laidOutChildren[laidOutChildren.length - 1];
-  const childrenSpanCenter = (firstChild.x + lastChild.x + lastChild.width) / 2;
   
+  const getMid = (l: LayoutNode) => 
+    l.spouseX !== undefined ? (l.x + NODE_WIDTH + l.spouseX) / 2 : l.x + NODE_WIDTH / 2;
+  
+  const childrenSpanCenter = (getMid(firstChild) + getMid(lastChild)) / 2;
   let parentX = childrenSpanCenter - spouseBlockWidth / 2;
 
   // Ensure parentX doesn't shift tree to the left of startX
@@ -194,7 +197,11 @@ function layoutTree(
     laidOutChildren.forEach(c => updateXPositions(c, shift));
   }
 
-  const totalWidth = Math.max(totalChildrenWidth, spouseBlockWidth);
+  // Calculate the actual total width covered by this family branch
+  const childrenRight = laidOutChildren[laidOutChildren.length - 1].x + 
+    laidOutChildren[laidOutChildren.length - 1].width;
+  const parentRight = parentX + spouseBlockWidth;
+  const totalWidth = Math.max(childrenRight, parentRight) - startX;
 
   return {
     node: tree,
