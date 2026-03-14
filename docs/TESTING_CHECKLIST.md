@@ -89,6 +89,19 @@
 
 ---
 
+## 💬 FITUR CHAT (Laptop & HP)
+
+### Chat Keluarga (`/family/[id]/chat`)
+- [ ] Ikon chat (💬) muncul di kartu keluarga di Dashboard
+- [ ] Klik ikon chat → Pop-up "Identitas Chat" muncul
+- [ ] Input nama tamu berfungsi dan tersimpan
+- [ ] Pesan terkirim muncul secara real-time (tanpa refresh)
+- [ ] Format pesan benar (`Nama: Isi Pesan`)
+- [ ] Tombol "Ganti Profil" (ikon 👤) di pojok kanan atas berfungsi
+- [ ] Catatan: _________
+
+---
+
 ## 🐛 Bug & Masalah Ditemukan
 
 ### Laptop

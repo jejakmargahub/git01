@@ -27,8 +27,11 @@
 - [x] Relationship server actions (add/remove bidirectional)
 - [x] AddRelationshipDialog (parent/child/spouse radio)
 - [x] Custom SVG tree visualization (zoom/pan/auto-layout)
-- [x] Node rendering (♂/♀, nickname, title, deceased Alm./Almh. 🌼, 📱)
-- [x] Zoom buttons (+/−) manual
+- [x] Node rendering (♂/♀, nickname + full name, title, deceased Alm./Almh. 🌼, 📱, umur)
+- [x] Zoom buttons (+/−) manual & scroll wheel zoom
+- [x] Auto-fit bounds calculation (perbaikan tampilan terpotong di laptop & HP)
+- [x] Multi-touch pinch-to-zoom support (khusus mobile/tablet)
+- [x] Dukungan input dan tampilan karakter Mandarin (Hanzi) pada pohon dan rincian anggota
 
 ## UI/UX Visual Design ✅
 - [x] Palet warna pastel (biru muda/pink, emas admin)
@@ -58,9 +61,58 @@
 - [ ] Swipe-to-close bottom sheet (gesture JS)
 - [ ] Long-press context menu pada node (touch events)
 - [ ] Mode "Mudah" toggle (font besar untuk senior)
+- [x] Privasi Data: Input dan Tampilan Tanggal Lahir/Meninggal hanya "Bulan & Tahun"
 - [ ] PWA setup (service worker, manifest, offline)
 - [ ] Cross-device testing
 
 ## Phase 6 – Deployment
 - [ ] Deploy ke Vercel + Neon
 - [ ] User testing dan feedback
+
+## Phase 7 – Advanced Enhancements (Next Iteration)
+- [x] Opsi registrasi dan login dengan Nomor HP (Sandi PIN 4 Angka)
+- [x] Fitur unggah foto muka anggota (opsional, maks 2MB, kompresi client-side)
+- [x] Berbagi Akses Bagan via URL Kode Undangan (domain jejakmarga.my.id)
+
+## Phase 8 – Landing Page & Access ✅
+- [x] Design and implement Landing Page (`/`)
+- [x] Connect Landing Page to System Access (Login)
+- [x] Review and refine registration flow (skip prompt)
+
+## Phase 9 – Interactive Edit Mode (Visual Tree Builder) ✅
+- [x] Tambahkan toggle "Edit Mode" di halaman pohon keluarga
+- [x] Modifikasi `FamilyTree.tsx` para melacak `selectedNodeId` khusus mode edit
+- [x] Buat komponen `EditArrows` berlapis SVG (Atas: Ibu/Ayah, Bawah: Anak, Kiri: Saudara, Kanan: Pasangan)
+- [x] Hubungkan setiap klik panah memanggil dialog form dengan state (relasi/gender default)
+- [x] Uji penyimpanan dan rendering real-time relasi anak, pasangan, saudara, dan orang tua
+- [x] Tambahkan label teks deskriptif di samping panah interaktif untuk memperjelas fungsi (Atas: Orang Tua, Bawah: Anak, Kiri: Saudara, Kanan: Pasangan)
+- [x] Refactor `RenderNode` di `FamilyTree.tsx`:
+    - [x] Format nama: "Nama Lengkap, Nama Mandarin"
+    - [x] Implementasi text wrapping agar rapi
+    - [x] Pindahkan tampilan umur ke pojok kanan atas node
+- [x] Perbaikan Clipping & Overlap:
+    - [x] Perbesar ukuran node (280x150) & margin (180x150)
+    - [x] Pastikan nama panjang "Alm. Ahim Siauw Him Cong" tidak terpotong (XHTML Wrapping)
+    - [x] Hilangkan tumpang tindih antar node pasangan (Gap 60px)
+    - [x] Perbaiki perataan vertikal (orang tua tepat di atas anak)
+
+## Phase 10 – External Media Storage (ImageKit.io) ✅
+- [x] Buat API Route autentikasi ImageKit di `/api/imagekit/auth`
+- [x] Konfigurasi variabel lingkungan (Public Key, Private Key, Endpoint)
+- [x] Perbarui `MemberForm.tsx` untuk menggunakan unggah langsung ke cloud
+- [x] Optimasi rendering foto dengan ImageKit URL transformations di pohon dan rincian anggota
+- [x] Bersihkan API upload lokal lama (`/api/upload`)
+- [ ] Perbaikan Bug Build Vercel (ImageKit Initialization)
+- [x] Verifikasi Akhir di Live Site (Pohon Marga Siauw Sak Po)
+
+## Phase 11 – Family Chat (New) 💬
+- [x] Update database schema (tabel `messages`)
+- [x] Setup Pusher untuk real-time communication
+- [x] Buat API Route untuk autentikasi Pusher
+- [x] Implementasi Server Actions `sendMessage` & `getMessages`
+- [x] Modifikasi `FamilyCard.tsx` (tambahkan ikon chat & badge notifikasi)
+- [x] Buat halaman Chat (`/family/[id]/chat`)
+- [x] UI Komponen: `ChatInput`, `MessageBubble`, `ChatWindow`
+- [x] Keamanan: Scoped access check (hanya anggota keluarga)
+- [x] Verifikasi real-time readiness (lazy loading hooks)
+- [x] **Fitur Tambahan Pengujian**: Prompt Nama Tamu (untuk identifikasi saat testing bypass)

@@ -1,114 +1,36 @@
-# Silsilah Keluarga PWA – Walkthrough
+# Walkthrough - Phase 11: Fitur Chat Keluarga 💬
 
-## Teknologi
+Fitur Chat Keluarga telah berhasil diimplementasikan secara penuh. Fitur ini memungkinkan anggota keluarga berkomunikasi secara real-time untuk mendiskusikan silsilah, berbagi kenangan, atau koordinasi lainnya secara aman dan terproteksi.
 
-| Layer | Teknologi |
-|-------|-----------|
-| Framework | Next.js 16 (App Router, Server Actions, Turbopack) |
-| Styling | Tailwind CSS v4 + CSS custom properties |
-| Database | Neon PostgreSQL (serverless) |
-| ORM | Drizzle ORM (type-safe, ringan) |
-| Auth | NextAuth.js v5 (Credentials + Google) |
-| Language | TypeScript |
+## Perubahan Utama
 
----
+### 1. Infrastruktur Real-time (Pusher)
+- Mengintegrasikan **Pusher** untuk pengiriman pesan instan tanpa perlu refresh halaman.
+- Implementasi **Lazy Loading** pada client dan server instance untuk memastikan performa maksimal dan stabilitas saat proses build/deployment.
+- Menyiapkan endpoint autentikasi aman (`/api/chat/pusher-auth`) yang memverifikasi akses anggota sebelum mengizinkan mereka masuk ke ruang chat keluarga.
 
-## Database Schema (5 Tabel)
+### 2. Backend & Database
+- Menambahkan tabel `messages` baru untuk menyimpan riwayat pesan dengan informasi pengirim, waktu, dan konten.
+- Membuat Server Actions (`sendMessage` & `getMessages`) yang menangani logika pengiriman pesan dan pengambilan riwayat 50 pesan terakhir (pagination ringan).
 
-```mermaid
-erDiagram
-    users ||--o{ families : "creates"
-    users ||--o{ family_access : "has"
-    families ||--o{ family_members : "contains"
-    families ||--o{ relationships : "has"
-    families ||--o{ family_access : "grants"
-    family_members ||--o{ relationships : "from/to"
-```
+### 3. Antarmuka Pengguna (UI)
+- **Dashboard Integration**: Menambahkan tombol chat (💬) pada setiap kartu keluarga di dashboard.
+- **Halaman Chat Khusus**: Halaman chat baru di `/family/[id]/chat` yang dioptimalkan untuk mobile dengan header yang bersih dan tombol kembali.
+- **Fitur Nama Tamu (Testing)**: Menambahkan form input nama sementara sebelum masuk ke chat. Ini memungkinkan penguji untuk memberikan identitas diri sehingga pesan tidak semuanya muncul sebagai "Pengguna" saat menggunakan akses bypass.
+- **Komponen Chat**:
+    - `ChatWindow`: Mengelola state pesan dan sinkronisasi real-time.
+    - `ChatInput`: Input teks yang responsif dengan dukungan multi-baris.
+    - `MessageBubble`: Tampilan pesan yang membedakan pengirim sendiri dan anggota lain, lengkap dengan waktu dan nama.
 
-| Tabel | Kolom kunci |
-|-------|-------------|
-| `users` | id, email, password (hash), fullName |
-| `families` | id, name, description, createdBy |
-| `family_members` | id, familyId, fullName, nickname, gender, birthDate, deathDate, title, phone, bio |
-| `relationships` | id, familyId, fromMemberId, toMemberId, relationType (parent/child/spouse) |
-| `family_access` | id, familyId, userId, role (admin/editor/viewer) |
+### 4. Optimalisasi & Perbaikan
+- **Tipografi**: Mengatur **Segoe UI** sebagai font utama aplikasi untuk tampilan yang lebih modern dan enak dibaca sesuai preferensi USER.
+- **Stabilitas Build**: Menyelesaikan berbagai kendala teknis (TypeScript 'implicit any', static analysis errors, dan konflik direktori) untuk memastikan aplikasi siap dideploy ke Vercel.
 
----
+## Verifikasi Teknis
 
-## Fitur yang Sudah Dibangun
-
-### Authentication
-- Login email/password + Google OAuth
-- Registrasi dengan validasi + password hashing (bcryptjs)
-- Middleware proteksi rute otomatis
-- JWT session strategy
-
-### Dashboard
-- Kartu bagan keluarga dengan: nama, jumlah anggota, role badge (emas admin), 🔒, ⚙️
-- FAB (+) untuk buat bagan baru → bottom sheet dialog
-- Empty state jika belum ada bagan
-
-### Family Page
-- **Pohon keluarga**: Custom SVG, auto-layout algorithm, zoom/pan (pointer + wheel), tombol +/−
-- **Daftar anggota**: List view alternatif, klik untuk detail
-- **Toggle**: Tombol 🌳 Pohon / 📋 Daftar
-- **Node**: 180×90px, shadow, ♂/♀ berwarna, nickname, title, Alm./Almh. 🌼, 📱
-
-### Member Management
-- Form tambah/edit: nama lengkap, panggilan, gender, tanggal lahir/meninggal, title (saran: Buyut, Kakek, dll), HP, bio
-- Detail bottom sheet: info lengkap + hubungan keluarga (klik untuk navigasi)
-- Hapus anggota dengan konfirmasi
-
-### Relationships
-- Tambah hubungan: orang tua / anak / pasangan via dialog
-- Bidirectional otomatis (parent ↔ child, spouse ↔ spouse)
-- Tampil di detail member, bisa klik untuk navigasi
-
-### Search
-- Pencarian global di semua bagan yang diakses
-- API `/api/search` – query fullName + nickname
-- Hasil: kartu dengan gender, title, badge bagan asal
-
-### Profile
-- Info user (nama, email, avatar inisial)
-- Pengaturan: Dark mode (ikuti sistem), Mode Mudah (segera hadir)
-- Tombol logout
+- [x] **Linting & Type Safety**: Semua error TypeScript di `FamilyPageClient.tsx` dan `search/route.ts` telah diperbaiki.
+- [x] **Production Build**: Perintah `npm run build` berhasil dijalankan tanpa error di environment lokal.
+- [x] **Lazy Loading**: Database dan Pusher dikonfigurasi untuk inisialisasi runtime, menghindari kegagalan saat static analysis.
 
 ---
-
-## Design System
-
-### Warna
-| | Light | Dark |
-|-|-------|------|
-| **Teks** | `#111827` | `#ffffff` |
-| **Background** | `#f8fafc` | `#121212` |
-| **Card** | `#ffffff` | `#1e1e1e` |
-| **Muted** | `#6b7280` (WCAG AA ✅) | `#9ca3af` |
-| **Laki-laki** | `#60a5fa` | `#93c5fd` |
-| **Perempuan** | `#f472b6` | `#f9a8d4` |
-| **Admin** | Emas `#b45309` | `#fbbf24` |
-
-### Komponen CSS
-Ripple effect · Glassmorphism bottom sheet · Skeleton shimmer · Context menu · Badges · FAB · Toast · Animations (fadeIn, slideUp, slideInRight)
-
-### Checklist UI/UX
-- [x] Font ≥16px · [x] Kontras WCAG AA · [x] Touch ≥48dp
-- [x] Ikon + label · [x] Bottom nav · [x] Glassmorphism
-- [x] Dark mode · [x] Ripple feedback · [x] Skeleton CSS
-- [ ] Swipe bottom sheet · [ ] Long-press menu · [ ] Mode Mudah
-
----
-
-## Build Status
-```
-✅ npm run build – 11 routes, 0 errors
-Routes: /, /login, /register, /dashboard, /family/[id], /search, /profile, /api/*
-```
-
-## Langkah Selanjutnya
-1. **Database**: Isi `DATABASE_URL` → `npx drizzle-kit push`
-2. **Test**: `npm run dev` → register → buat bagan → tambah anggota
-3. **Phase 4**: Access control & undangan
-4. **Phase 5**: PWA, mode mudah, gesture
-5. **Phase 6**: Deploy Vercel
+*Fitur ini sekarang siap digunakan untuk meningkatkan kolaborasi dalam membangun silsilah keluarga Jejak Marga.*

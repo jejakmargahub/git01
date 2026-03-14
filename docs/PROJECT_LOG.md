@@ -1,7 +1,7 @@
 # Silsilah Keluarga PWA – Project Log
 
 > **Conversation ID**: `a7f5de84-003f-4c68-93a8-ba1f4b92355e`
-> **Terakhir diperbarui**: 13 Maret 2026, 00:53 WIB
+> **Terakhir diperbarui**: 15 Maret 2026, 01:00 WIB
 
 ---
 
@@ -43,6 +43,15 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
    - **Nama Mandarin**: Menambahkan field khusus untuk penulisan huruf Mandarin (Hanzi), yang akan ditampilkan berdampingan dengan nama panggilan pada diagram pohon dan halaman detail profil.
    - Node height disesuaikan dari 90px ke 100px.
 
+### Sesi 4 – Real-time Chat & Production Polish (Phase 11)
+**Apa yang dibangun:**
+1. **Family Chat**: Fitur chat real-time per bagan keluarga menggunakan **Pusher**.
+2. **Build Stability**: Implementasi **Lazy Loading** pada koneksi Database dan Pusher Client/Server untuk memperbaiki error build Vercel (karena missing env vars saat static analysis).
+3. **Testing Feature**: Menambahkan **Guest Name Modal** (Pop-up Identitas) untuk memudahkan pengujian identitas user saat menggunakan akses bypass.
+4. **Modern UI Format**: Pesan chat ditampilkan dengan format `Nama: Pesan` di dalam bubble. Pengguna juga dapat berganti identitas via tombol "Ganti Profil".
+5. **Segoe UI Font**: Mengubah font utama aplikasi menjadi 'Segoe UI' (atau Inter/System fallback) untuk tampilan yang lebih premium.
+6. **Clean Build**: Memperbaiki semua error TypeScript (implicit any) dan merapikan struktur direktori.
+
 ---
 
 ## 32 File Proyek
@@ -64,6 +73,7 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
 | `src/app/(main)/dashboard/DashboardClient.tsx` | Client: kartu + FAB |
 | `src/app/(main)/family/[id]/page.tsx` | Server: fetch family |
 | `src/app/(main)/family/[id]/FamilyPageClient.tsx` | Client: tree/list/CRUD |
+| `src/app/(main)/family/[id]/chat/page.tsx` | Server: fetch chat messages |
 | `src/app/(main)/search/page.tsx` | Pencarian global |
 | `src/app/(main)/profile/page.tsx` | Profil user |
 
@@ -72,6 +82,8 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
 |------|--------|
 | `src/app/api/auth/[...nextauth]/route.ts` | NextAuth handler |
 | `src/app/api/auth/register/route.ts` | Register API |
+| `src/app/api/chat/pusher-auth/route.ts` | Pusher Auth API |
+| `src/app/api/imagekit/auth/route.ts` | ImageKit Auth API |
 | `src/app/api/search/route.ts` | Search API |
 
 ### Components
@@ -86,6 +98,9 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
 | `src/components/family/CreateFamilyDialog.tsx` | Dialog buat bagan |
 | `src/components/ui/BottomNav.tsx` | Navigasi bawah |
 | `src/components/ui/Skeleton.tsx` | Skeleton loading |
+| `src/components/chat/ChatWindow.tsx` | Chat Container (Pusher logic) |
+| `src/components/chat/ChatInput.tsx` | Input chat (multi-line) |
+| `src/components/chat/MessageBubble.tsx` | Bubble pesan (isOwn check) |
 
 ### Backend
 | File | Fungsi |
@@ -94,8 +109,10 @@ Aplikasi web Progressive Web App (PWA) untuk melacak silsilah keluarga dengan **
 | `src/lib/actions/family.ts` | CRUD bagan |
 | `src/lib/actions/member.ts` | CRUD anggota |
 | `src/lib/actions/relationship.ts` | Add/remove hubungan |
-| `src/lib/db/index.ts` | Koneksi Neon |
-| `src/lib/db/schema.ts` | 5 tabel + relations |
+| `src/lib/db/index.ts` | Koneksi Neon (Lazy Loaded) |
+| `src/lib/db/schema.ts` | 6 tabel + relations |
+| `src/lib/pusher.ts` | Config Pusher (Lazy Loaded) |
+| `src/lib/actions/chat.ts` | Server Actions: Chat CRUD |
 | `src/middleware.ts` | Route protection |
 
 ---
@@ -141,3 +158,4 @@ npm run dev
 - [task.md](./task.md) – Checklist per phase
 - [implementation_plan.md](./implementation_plan.md) – Arsitektur & rencana
 - [walkthrough.md](./walkthrough.md) – Ringkasan fitur & design system
+- [API_CONFIG.md](./API_CONFIG.md) – Detail API & Environment Variables
