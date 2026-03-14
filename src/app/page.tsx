@@ -16,15 +16,20 @@ export default async function Home() {
         <div className="text-xl font-bold text-primary flex items-center gap-2">
           <span>🌳</span> Jejak Marga
         </div>
-        <div>
+        <div className="flex items-center gap-2">
           {session ? (
-            <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 rounded-full">
+            <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 rounded-full shadow-md">
               Ke Dashboard
             </Link>
           ) : (
-            <Link href="/login" className="btn btn-secondary text-sm px-4 py-2 rounded-full">
-              Masuk
-            </Link>
+            <>
+              <Link href="/register" className="hidden sm:block text-sm font-semibold text-primary hover:text-primary/80 transition-colors mr-2">
+                Daftar
+              </Link>
+              <Link href="/login" className="btn btn-primary text-sm px-5 py-2 rounded-full shadow-md border-2 border-primary">
+                Masuk
+              </Link>
+            </>
           )}
         </div>
       </header>
@@ -47,10 +52,18 @@ export default async function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
             <Link 
               href={session ? "/dashboard" : "/login"} 
-              className="btn btn-primary text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full sm:w-auto rounded-xl"
+              className="btn btn-primary text-lg px-8 py-4 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 w-full sm:w-auto rounded-xl flex items-center justify-center gap-2"
             >
               {session ? "Buka Dasbor Saya" : "🚀 Masuk ke Sistem"}
             </Link>
+            {!session && (
+              <Link 
+                href="/register" 
+                className="btn text-lg px-8 py-4 border-2 border-primary text-primary hover:bg-primary/5 transition-all hover:-translate-y-1 w-full sm:w-auto rounded-xl flex items-center justify-center gap-2 font-bold"
+              >
+                ✨ Mulai Daftar Akun
+              </Link>
+            )}
           </div>
         </div>
 
