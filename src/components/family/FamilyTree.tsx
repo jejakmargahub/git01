@@ -123,12 +123,12 @@ function buildTree(
   return trees;
 }
 
-// Node dimensions – further enlarged to accommodate long names and prevent overlaps
-const NODE_WIDTH = 260;
-const NODE_HEIGHT = 140;
-const NODE_MARGIN_X = 180; 
-const NODE_MARGIN_Y = 150;
-const SPOUSE_GAP = 50; 
+// Node dimensions – extreme sizing to guarantee long names fit and spouses are separated
+const NODE_WIDTH = 280;
+const NODE_HEIGHT = 150;
+const NODE_MARGIN_X = 220; 
+const NODE_MARGIN_Y = 160;
+const SPOUSE_GAP = 60; 
 
 interface LayoutNode {
   node: TreeNode;
@@ -320,16 +320,16 @@ function RenderNode({
       {ageText && (
         <g>
           <rect
-            x={x + NODE_WIDTH - 55}
+            x={x + NODE_WIDTH - 60}
             y={y + 8}
-            width={48}
-            height={18}
-            rx={9}
+            width={52}
+            height={20}
+            rx={10}
             fill={isDeceased ? "#e5e7eb" : "#ecfdf5"}
           />
           <text
-            x={x + NODE_WIDTH - 31}
-            y={y + 20}
+            x={x + NODE_WIDTH - 34}
+            y={y + 22}
             fontSize={10}
             fill={isDeceased ? "#6b7280" : "#059669"}
             fontWeight="700"
@@ -342,23 +342,24 @@ function RenderNode({
 
       {/* NEW Consolidated UI: Using an explicit XHTML namespace and robust wrapping CSS */}
       <foreignObject
-        x={x + 60}
+        x={x + 64}
         y={y + 12}
-        width={NODE_WIDTH - 110}
+        width={NODE_WIDTH - 120}
         height={NODE_HEIGHT - 24}
       >
         <div 
           style={{
-            fontSize: "14px",
+            fontSize: "15px", // Slightly larger for better readability
             color: "#111827",
-            lineHeight: "1.4",
+            lineHeight: "1.3",
             wordWrap: "break-word",
             wordBreak: "break-word",
             whiteSpace: "normal !important",
             textAlign: "left",
             display: "block",
             fontFamily: "inherit",
-            overflow: "visible"
+            overflow: "visible",
+            height: "auto"
           }}
         >
           {/* Main Name + Mandarin - Ensure it is the primary focus */}
