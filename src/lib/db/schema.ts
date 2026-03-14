@@ -136,9 +136,34 @@ export const familyAccessRelations = relations(familyAccess, ({ one }) => ({
   }),
 }));
 
+// ==================== MESSAGES (Family Chat) ====================
+export const messages = pgTable("messages", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  familyId: uuid("family_id")
+    .notNull()
+    .references(() => families.id, { onDelete: "cascade" }),
+  senderId: uuid("sender_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  content: text("content").notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+  family: one(families, {
+    fields: [messages.familyId],
+    references: [families.id],
+  }),
+  sender: one(users, {
+    fields: [messages.senderId],
+    references: [users.id],
+  }),
+}));
+
 // ==================== TYPE EXPORTS ====================
 export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
+export type NewUser = typeof users.$inferSelect;
 export type Family = typeof families.$inferSelect;
 export type NewFamily = typeof families.$inferInsert;
 export type FamilyMember = typeof familyMembers.$inferSelect;
@@ -147,3 +172,5 @@ export type Relationship = typeof relationships.$inferSelect;
 export type NewRelationship = typeof relationships.$inferInsert;
 export type FamilyAccess = typeof familyAccess.$inferSelect;
 export type NewFamilyAccess = typeof familyAccess.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;

@@ -128,6 +128,26 @@ export default function FamilyCard({
             {memberCount} anggota
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <Link
+              href={`/family/${family.id}/chat`}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "32px",
+                height: "32px",
+                borderRadius: "50%",
+                background: "var(--card-border)",
+                fontSize: "16px",
+                textDecoration: "none",
+                transition: "all 0.2s",
+              }}
+              className="hover-scale"
+              title="Chat Keluarga"
+            >
+              💬
+            </Link>
             <span className={`badge badge-${role}`}>{roleLabels[role]}</span>
             {role === "admin" && (
               <span style={{ fontSize: "16px", opacity: 0.6 }} title="Pengaturan">⚙️</span>

@@ -33,7 +33,7 @@ export async function GET(request: Request) {
       .from(familyAccess)
       .where(eq(familyAccess.userId, session.user.id));
 
-    const familyIds = accessibleFamilies.map((a) => a.familyId);
+    const familyIds = accessibleFamilies.map((a: any) => a.familyId);
 
     if (familyIds.length === 0) {
       return NextResponse.json({ results: [] });

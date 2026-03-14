@@ -59,7 +59,7 @@ export default function FamilyPageClient({
       try {
         const rels = await getMemberRelationships(family.id, memberId);
         setMemberRelationships(
-          rels.map((r) => ({
+          rels.map((r: any) => ({
             id: r.id,
             relationType: r.relationType,
             relatedMember: r.relatedMember,
@@ -95,7 +95,7 @@ export default function FamilyPageClient({
         } else if (relationType === "sibling") {
           // Find parents of source member
           const sourceRels = await getMemberRelationships(familyId, sourceMemberId);
-          const parents = sourceRels.filter(r => r.relationType === "parent" && r.relatedMember.id !== sourceMemberId);
+          const parents = sourceRels.filter((r: any) => r.relationType === "parent" && r.relatedMember.id !== sourceMemberId);
           // Note: andRelationship is bidirectional for spouse/child but we need to be careful with the "from" member.
           // Actually relationships are stored as (from, to, type).
           // If R is parent-child, then from is parent, to is child.
@@ -108,7 +108,7 @@ export default function FamilyPageClient({
           
           // Simpler: Just look for relationships in the 'relationships' prop we already have
           const parentsOfSource = relationships
-            .filter(r => r.toMemberId === sourceMemberId && r.relationType === "parent")
+            .filter((r: any) => r.toMemberId === sourceMemberId && r.relationType === "parent")
             .map(r => r.fromMemberId);
           
           for (const parentId of parentsOfSource) {
