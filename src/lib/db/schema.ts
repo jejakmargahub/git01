@@ -17,6 +17,7 @@ export const users = pgTable("users", {
   phoneNumber: varchar("phone_number", { length: 20 }).unique(), // Added phone number
   password: varchar("password", { length: 255 }), // nullable for OAuth users
   fullName: varchar("full_name", { length: 255 }).notNull(),
+  role: varchar("role", { length: 20 }).default("user").notNull(), // 'user', 'superadmin'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
