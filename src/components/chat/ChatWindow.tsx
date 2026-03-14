@@ -72,26 +72,32 @@ export default function ChatWindow({ familyId, initialMessages, currentUser }: C
    */
   if (!isNameSet && (currentUser.name === "Pengguna" || !currentUser.id)) {
     return (
-      <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4 bg-background">
-        <div className="text-4xl">💬</div>
-        <div>
-          <h2 className="text-lg font-bold">Siapa nama Anda?</h2>
-          <p className="text-sm text-muted">Beri tahu keluarga siapa yang sedang mengirim pesan.</p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-background/80 backdrop-blur-sm animate-fade-in">
+        <div className="card w-full max-w-sm shadow-xl animate-slide-up space-y-6">
+          <div className="text-center">
+            <div className="text-4xl mb-2">🌳</div>
+            <h2 className="text-xl font-bold">Identitas Chat</h2>
+            <p className="text-sm text-muted">Beri tahu keluarga siapa yang sedang mengetik.</p>
+          </div>
+          
+          <form onSubmit={handleSaveName} className="space-y-4">
+            <div className="input-group">
+              <label className="input-label">Nama Anda</label>
+              <input 
+                type="text" 
+                className="input-field" 
+                placeholder="Contoh: Budi, Istri Chris, dll..."
+                value={guestName}
+                onChange={(e) => setGuestName(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+            <button type="submit" className="btn btn-primary btn-full">
+              Masuk ke Ruang Chat
+            </button>
+          </form>
         </div>
-        <form onSubmit={handleSaveName} className="w-full max-w-xs space-y-3">
-          <input 
-            type="text" 
-            className="input-field" 
-            placeholder="Masukkan Nama/ID Anda..."
-            value={guestName}
-            onChange={(e) => setGuestName(e.target.value)}
-            required
-            autoFocus
-          />
-          <button type="submit" className="btn btn-primary btn-full">
-            Mulai Chat
-          </button>
-        </form>
       </div>
     );
   }
@@ -107,7 +113,7 @@ export default function ChatWindow({ familyId, initialMessages, currentUser }: C
           <MessageBubble 
             key={msg.id} 
             message={msg} 
-            isOwn={msg.senderId === currentUser.id} 
+            isOwn={msg.senderId === currentUser.id && (!guestName || msg.content.startsWith(`${guestName}:`))} 
           />
         ))}
       </div>
@@ -116,12 +122,14 @@ export default function ChatWindow({ familyId, initialMessages, currentUser }: C
       <ChatInput onSend={handleSend} />
       
       {/* Option to change name (Temporary) */}
-      <button 
-        onClick={() => setIsNameSet(false)}
-        className="absolute top-2 right-2 p-1 text-[10px] bg-card/80 backdrop-blur border rounded opacity-50 hover:opacity-100 transition-opacity"
-      >
-        Ganti Nama: {guestName}
-      </button>
+      <div className="absolute top-2 right-2 flex gap-2">
+        <button 
+          onClick={() => setIsNameSet(false)}
+          className="px-3 py-1.5 text-[11px] font-bold bg-white/90 dark:bg-black/90 backdrop-blur border border-primary/20 rounded-full shadow-sm hover:bg-primary hover:text-white transition-all"
+        >
+          👤 {guestName || "Ganti Profil"}
+        </button>
+      </div>
     </div>
   );
 }

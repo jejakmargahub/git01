@@ -13,22 +13,23 @@ export default function MessageBubble({ message, isOwn }: MessageBubbleProps) {
 
   return (
     <div className={`flex flex-col ${isOwn ? "items-end" : "items-start"}`}>
-      {/* Sender Name */}
-      {!isOwn && (
-        <span className="text-xs font-medium text-muted-foreground ml-2 mb-1">
-          {message.sender?.fullName || "Nama Tidak Diketahui"}
-        </span>
-      )}
-
       {/* Bubble */}
       <div
-        className={`max-w-[80%] px-4 py-2 rounded-2xl shadow-sm text-sm ${
+        className={`max-w-[85%] px-3 py-2 rounded-2xl shadow-sm text-sm ${
           isOwn
             ? "bg-primary text-primary-foreground rounded-tr-none"
             : "bg-card text-card-foreground border border-border rounded-tl-none"
         }`}
       >
-        <p className="whitespace-pre-wrap break-words">{message.content}</p>
+        <p className="whitespace-pre-wrap break-words leading-relaxed">
+          {/* Format: Name: Content */}
+          <span className="font-bold opacity-90 mr-1.5">
+            {message.sender?.fullName || "Pengguna"}:
+          </span>
+          {message.content.includes(":") && message.content.split(":")[0].length < 20
+            ? message.content.substring(message.content.indexOf(":") + 1).trim()
+            : message.content}
+        </p>
         
         {/* Timestamp */}
         <div className={`text-[10px] mt-1 opacity-70 ${isOwn ? "text-right" : "text-left"}`}>

@@ -31,7 +31,7 @@ export async function sendMessage(familyId: string, content: string, guestName?:
   // Temporary: Prepend name if guestName is provided for testing
   let finalContent = content;
   if (guestName) {
-    finalContent = `[${guestName}]: ${content}`;
+    finalContent = `${guestName}: ${content}`;
   }
 
   // Save to DB
