@@ -123,11 +123,11 @@ function buildTree(
   return trees;
 }
 
-// Node dimensions – designed for 48dp+ touch targets
-const NODE_WIDTH = 180;
-const NODE_HEIGHT = 100;
-const NODE_MARGIN_X = 100; // Increased to accommodate EditArrows
-const NODE_MARGIN_Y = 100; // Increased for better spacing
+// Node dimensions – enlarged to accommodate longer names and prevent clipping
+const NODE_WIDTH = 220;
+const NODE_HEIGHT = 120;
+const NODE_MARGIN_X = 140;
+const NODE_MARGIN_Y = 120;
 const SPOUSE_GAP = 14;
 
 interface LayoutNode {
@@ -327,19 +327,19 @@ function RenderNode({
           {genderIcon}
         </text>
       )}
-      {/* Age badge (top right corner) - ensure it's on top */}
+      {/* Age badge (top right corner) - ensure it's on top and doesn't overlap with name start */}
       {ageText && (
         <g>
           <rect
-            x={x + NODE_WIDTH - 45}
+            x={x + NODE_WIDTH - 50}
             y={y + 6}
-            width={40}
+            width={44}
             height={16}
             rx={8}
             fill={isDeceased ? "#e5e7eb" : "#ecfdf5"}
           />
           <text
-            x={x + NODE_WIDTH - 25}
+            x={x + NODE_WIDTH - 28}
             y={y + 17}
             fontSize={9}
             fill={isDeceased ? "#6b7280" : "#059669"}
@@ -351,12 +351,12 @@ function RenderNode({
         </g>
       )}
 
-      {/* NEW Consolidated UI: Consolidates name, nickname, and title into a single wrapped block */}
+      {/* NEW Consolidated UI: Consolidates name, mandarin name, nickname, and title into a single wrapped block */}
       <foreignObject
         x={x + 56}
         y={y + 8}
-        width={NODE_WIDTH - 64}
-        height={84}
+        width={NODE_WIDTH - 106} // Reduced width slightly more to leave clear space for the age badge on the right
+        height={NODE_HEIGHT - 16}
       >
         <div 
           style={{
@@ -368,12 +368,12 @@ function RenderNode({
             textAlign: "left",
             display: "block",
             fontFamily: "inherit",
-            height: "100%",
-            overflow: "hidden"
+            overflow: "hidden",
+            maxHeight: "100%"
           }}
         >
           {/* Main Name + Mandarin */}
-          <div style={{ fontWeight: "700", marginBottom: "2px" }}>
+          <div style={{ fontWeight: "700", marginBottom: "4px", paddingRight: "4px" }}>
             {isDeceased ? `${deceasedPrefix} ` : ""}
             {member.fullName}
             {member.mandarinName ? `, ${member.mandarinName}` : ""}
@@ -386,7 +386,7 @@ function RenderNode({
               <div style={{ opacity: 0.8 }}>Panggilan: {member.nickname}</div>
             )}
             {member.title && (
-              <div style={{ fontStyle: "italic", marginTop: "1px" }}>{member.title}</div>
+              <div style={{ fontStyle: "italic", marginTop: "2px" }}>{member.title}</div>
             )}
           </div>
         </div>
