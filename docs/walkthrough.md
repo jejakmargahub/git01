@@ -51,5 +51,12 @@ Saya telah melakukan pengujian langsung (live test) pada domain `jejakmarga.my.i
 
 ![Dashboard Reordered](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/dashboard_family_list_1773533499322.png)
 
+### Alur Registrasi & Google Login 🔐
+- [x] **Konfirmasi Registrasi**: Pesan sukses hijau kini muncul otomatis setelah pendaftaran selesai untuk memberi kepastian pada pengguna.
+- [x] **Google Login**: Memastikan fitur "Masuk dengan Google" tersedia sebagai alternatif login cepat tanpa verifikasi tambahan saat ini.
+- [x] **CSR Fix**: Menggunakan `Suspense` dan `useEffect` untuk memastikan parameter URL terbaca dengan benar di semua kondisi browser.
+
+![Registration Success](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/login_page_success_message_and_google_button_1773534328419.png)
+
 ---
 *Fitur ini sekarang siap digunakan untuk meningkatkan kolaborasi dalam membangun silsilah keluarga Jejak Marga.*
