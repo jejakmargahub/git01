@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { families, familyAccess, familyMembers } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, desc } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createFamily(formData: FormData) {
@@ -104,7 +104,8 @@ export async function getUserFamilies() {
     .innerJoin(families, eq(familyAccess.familyId, families.id))
     .leftJoin(familyMembers, eq(families.id, familyMembers.familyId))
     .where(eq(familyAccess.userId, session.user.id))
-    .groupBy(families.id, familyAccess.role);
+    .groupBy(families.id, familyAccess.role)
+    .orderBy(desc(families.createdAt));
 
   return userAccess;
 }
