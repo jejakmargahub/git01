@@ -55,23 +55,32 @@ function buildTree(
     return !parents || parents.length === 0;
   });
 
-  // Filter roots: if a root is a spouse of another root, only keep one
-  const spouseRootsRemoved = new Set<string>();
-  rootMembers.forEach((m) => {
+  // IMPROVED ROOT FILTERING:
+  // 1. A member who has no parents but is a spouse of someone who IS NOT a root 
+  //    should not be a root (they should be rendered as a spouse of that person).
+  const filteredRootCandidates = rootMembers.filter((rm) => {
+    const spouses = spouseMap.get(rm.id) || [];
+    // If any of my spouses are NOT in the rootMembers list, they must be deeper in the tree.
+    // In that case, I (the root candidate) should not be an independent root.
+    const hasSpouseDeepInTree = spouses.some(
+      (sid) => !rootMembers.some((r) => r.id === sid)
+    );
+    return !hasSpouseDeepInTree;
+  });
+
+  // 2. If multiple candidates are spouses of each other, we only want ONE to be the root.
+  const finalRootsSet = new Set(filteredRootCandidates.map((m) => m.id));
+  filteredRootCandidates.forEach((m) => {
     const spouses = spouseMap.get(m.id) || [];
     spouses.forEach((sid) => {
-      if (
-        rootMembers.some((rm) => rm.id === sid) &&
-        !spouseRootsRemoved.has(m.id)
-      ) {
-        spouseRootsRemoved.add(sid);
+      if (finalRootsSet.has(sid) && finalRootsSet.has(m.id) && sid !== m.id) {
+        // Remove the spouse from roots to avoid duplicate trees for the same couple
+        finalRootsSet.delete(sid);
       }
     });
   });
 
-  const filteredRoots = rootMembers.filter(
-    (m) => !spouseRootsRemoved.has(m.id)
-  );
+  const filteredRoots = members.filter((m) => finalRootsSet.has(m.id));
 
   function buildNode(memberId: string, visited: Set<string>): TreeNode | null {
     if (visited.has(memberId)) return null;
