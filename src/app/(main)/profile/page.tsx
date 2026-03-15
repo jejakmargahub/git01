@@ -64,7 +64,7 @@ export default function ProfilePage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {userName}
+                {userName} {(session?.user as any)?.role === 'superadmin' ? '(Admin)' : ''}
               </h2>
               <p
                 className="text-muted"
@@ -77,6 +77,19 @@ export default function ProfilePage() {
               >
                 {userEmail}
               </p>
+              {(session?.user as any)?.phoneNumber && (
+                <p
+                  className="text-muted"
+                  style={{
+                    fontSize: "14px",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {(session?.user as any)?.phoneNumber}
+                </p>
+              )}
             </div>
           </div>
         </div>
