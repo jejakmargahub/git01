@@ -16,6 +16,7 @@ interface FamilyTreeProps {
   onNodeClick?: (memberId: string) => void;
   isEditMode?: boolean;
   onQuickAdd?: (sourceId: string, type: "child" | "spouse" | "sibling" | "parent") => void;
+  highlightNodeId?: string | null;
 }
 
 function buildTree(
@@ -250,6 +251,7 @@ function RenderNode({
   x: number;
   y: number;
   onClick: () => void;
+  isHighlighted?: boolean;
 }) {
   const isDeceased = !!member.deathDate;
   const genderIcon = member.gender === "M" ? "♂" : "♀";
@@ -297,8 +299,9 @@ function RenderNode({
         rx={14}
         ry={14}
         fill={isDeceased ? "#f3f4f6" : "white"}
-        stroke={genderColor}
-        strokeWidth={2.5}
+        stroke={isHighlighted ? "var(--primary)" : genderColor}
+        strokeWidth={isHighlighted ? 4 : 2.5}
+        className={isHighlighted ? "node-highlight-pulse" : ""}
       />
       {/* Avatar Image */}
       {member.photoUrl && (
@@ -521,6 +524,7 @@ export default function FamilyTree({
   onNodeClick,
   isEditMode = false,
   onQuickAdd,
+  highlightNodeId,
 }: FamilyTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -600,6 +604,42 @@ export default function FamilyTree({
       });
     }
   }, [contentWidth, contentHeight, members.length]);
+  
+  // Auto-center on highlighted node
+  useEffect(() => {
+    if (highlightNodeId && containerRef.current) {
+      const targetNode = allNodes.find(n => n.node.member.id === highlightNodeId);
+      // Also check spouses
+      let targetX = targetNode?.x;
+      let targetY = targetNode?.y;
+      
+      if (!targetNode) {
+        // Find if it's a spouse
+        for (const n of allNodes) {
+          const spouseIndex = n.node.spouses.findIndex(s => s.id === highlightNodeId);
+          if (spouseIndex !== -1) {
+            targetX = n.spouseX! + spouseIndex * (NODE_WIDTH + SPOUSE_GAP);
+            targetY = n.y;
+            break;
+          }
+        }
+      }
+      
+      if (targetX !== undefined && targetY !== undefined) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+        
+        // We want a good zoom level for the newly added member
+        const targetScale = 0.8; 
+        
+        setTransform({
+          x: (containerWidth / 2) - (targetX + NODE_WIDTH / 2) * targetScale,
+          y: (containerHeight / 2) - (targetY + NODE_HEIGHT / 2) * targetScale,
+          scale: targetScale,
+        });
+      }
+    }
+  }, [highlightNodeId]);
 
   // Ref to track pinch state (avoid stale closure issues)
   const pinchRef = useRef<{ dist: number; scale: number } | null>(null);
@@ -847,6 +887,7 @@ export default function FamilyTree({
               member={layoutNode.node.member}
               x={layoutNode.x}
               y={layoutNode.y}
+              isHighlighted={highlightNodeId === layoutNode.node.member.id}
               onClick={() => {
                 if (isEditMode) {
                   setSelectedEditNode(selectedEditNode === layoutNode.node.member.id ? null : layoutNode.node.member.id);
@@ -875,6 +916,7 @@ export default function FamilyTree({
                       member={spouse}
                       x={sx}
                       y={sy}
+                      isHighlighted={highlightNodeId === spouse.id}
                       onClick={() => {
                         if (isEditMode) {
                           setSelectedEditNode(selectedEditNode === spouse.id ? null : spouse.id);

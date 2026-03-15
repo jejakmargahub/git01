@@ -47,6 +47,7 @@ export default function FamilyPageClient({
     relationType: "child" | "spouse" | "sibling" | "parent";
     sourceGender?: string;
   } | null>(null);
+  const [highlightNodeId, setHighlightNodeId] = useState<string | null>(null);
 
   const canEdit = userRole === "admin" || userRole === "editor";
   const isAdmin = userRole === "admin";
@@ -122,6 +123,12 @@ export default function FamilyPageClient({
     }
     
     router.refresh();
+    
+    if (newMember) {
+      setHighlightNodeId(newMember.id);
+      // Reset highlight after 5 seconds
+      setTimeout(() => setHighlightNodeId(null), 5000);
+    }
   };
 
   const handleUpdateMember = async (
@@ -343,6 +350,7 @@ export default function FamilyPageClient({
             setEditingMember(null);
             setShowMemberForm(true);
           }}
+          highlightNodeId={highlightNodeId}
         />
       ) : (
         <div className="page-content">
