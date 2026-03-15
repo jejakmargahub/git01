@@ -45,7 +45,11 @@ Saya telah melakukan pengujian langsung (live test) pada domain `jejakmarga.my.i
 - [x] **Hapus Bypass**: Menghapus tombol "Akses Langsung Dashboard" untuk memastikan seluruh akses melalui sistem otentikasi resmi.
 - [x] **Middleware Update**: Mencabut logika bypass dari sistem keamanan aplikasi.
 
-![Login Page Secured](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/login_page_verified_1773533263852.png)
+### Pengaturan Urutan Bagan 📋
+- [x] **Prioritas Utama**: Memindahkan "Keluarga Marga Siauw Sak Po" ke posisi paling atas di dashboard.
+- [x] **Sorting Terprogram**: Menambahkan logika pengurutan berdasarkan waktu pembuatan terbaru (*Chronological Descending*) di seluruh sistem bagan keluarga.
+
+![Dashboard Reordered](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/dashboard_family_list_1773533499322.png)
 
 ---
 *Fitur ini sekarang siap digunakan untuk meningkatkan kolaborasi dalam membangun silsilah keluarga Jejak Marga.*
