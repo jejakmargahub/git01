@@ -64,7 +64,7 @@ export default function ProfilePage() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {userName} {(session?.user as any)?.role === 'superadmin' ? '(Admin)' : ''}
+                {userName.replace(/\(Admin\)/g, "").trim()} {(session?.user as any)?.role === 'superadmin' ? '(Admin)' : ''}
               </h2>
               <p
                 className="text-muted"
@@ -91,6 +91,30 @@ export default function ProfilePage() {
                 </p>
               )}
             </div>
+          </div>
+        </div>
+
+        {/* Member Capacity Info Card */}
+        <div 
+          className="card" 
+          style={{ 
+            marginBottom: "16px", 
+            background: "linear-gradient(to right, #ecfdf5, #ffffff)",
+            border: "1px solid #10b981",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            padding: "16px"
+          }}
+        >
+          <div style={{ fontSize: "24px" }}>🌳</div>
+          <div>
+            <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#065f46" }}>
+              Kapasitas Anggota
+            </p>
+            <p style={{ margin: 0, fontSize: "13px", color: "#059669" }}>
+              Tanpa Batas (Unlimited)
+            </p>
           </div>
         </div>
 

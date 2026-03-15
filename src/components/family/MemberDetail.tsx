@@ -33,8 +33,8 @@ export default function MemberDetail({
 
   const displayName = member.nickname || member.fullName;
 
-  const parents = relationships.filter((r) => r.relationType === "parent");
-  const children = relationships.filter((r) => r.relationType === "child");
+  const parents = relationships.filter((r) => r.relationType === "child");
+  const children = relationships.filter((r) => r.relationType === "parent");
   const spouses = relationships.filter((r) => r.relationType === "spouse");
 
   const formatDate = (dateStr: string | null) => {
