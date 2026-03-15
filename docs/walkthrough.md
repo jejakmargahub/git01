@@ -41,7 +41,11 @@ Saya telah melakukan pengujian langsung (live test) pada domain `jejakmarga.my.i
 - [x] **Grid Fitur**: Memperbarui grid fitur menjadi 4 kolom untuk menyertakan **"Chat Keluarga"** sebagai fitur unggulan.
 - [x] **Responsivitas**: Memastikan layout tetap rapi di perangkat mobile dan desktop.
 
-![Landing Page Features](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/landing_page_updated_features_1773532527016.png)
+### Pembersihan Keamanan 🛡️
+- [x] **Hapus Bypass**: Menghapus tombol "Akses Langsung Dashboard" untuk memastikan seluruh akses melalui sistem otentikasi resmi.
+- [x] **Middleware Update**: Mencabut logika bypass dari sistem keamanan aplikasi.
+
+![Login Page Secured](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/login_page_verified_1773533263852.png)
 
 ---
 *Fitur ini sekarang siap digunakan untuk meningkatkan kolaborasi dalam membangun silsilah keluarga Jejak Marga.*
