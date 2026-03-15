@@ -246,6 +246,7 @@ function RenderNode({
   x,
   y,
   onClick,
+  isHighlighted,
 }: {
   member: FamilyMember;
   x: number;
