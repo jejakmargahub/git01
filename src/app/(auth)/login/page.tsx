@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginPage() {
@@ -11,6 +11,8 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const registered = searchParams.get("registered") === "true";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +68,25 @@ export default function LoginPage() {
           Masuk untuk mengelola pohon keluarga Anda
         </p>
       </div>
+
+      {/* Success Message */}
+      {registered && (
+        <div
+          className="animate-slide-up"
+          style={{
+            background: "rgba(34, 197, 94, 0.1)",
+            color: "var(--success, #22c55e)",
+            padding: "12px 16px",
+            borderRadius: "var(--radius-sm)",
+            fontSize: "14px",
+            marginBottom: "20px",
+            textAlign: "center",
+            border: "1px solid rgba(34, 197, 94, 0.2)",
+          }}
+        >
+          ✨ Registrasi berhasil! Silakan masuk dengan akun baru Anda.
+        </div>
+      )}
 
       {/* Error Message */}
       {error && (
@@ -202,29 +223,6 @@ export default function LoginPage() {
           ✨ Daftar Akun Baru (Email / No. HP)
         </Link>
       </div>
-
-      {/* Register Link 
-      <p
-        style={{
-          textAlign: "center",
-          marginTop: "24px",
-          fontSize: "14px",
-          color: "var(--muted)",
-        }}
-      >
-        Belum punya akun?{" "}
-        <Link
-          href="/register"
-          style={{
-            color: "var(--primary)",
-            fontWeight: "600",
-            textDecoration: "none",
-          }}
-        >
-          Daftar di sini
-        </Link>
-      </p>
-      */}
     </div>
   );
 }
