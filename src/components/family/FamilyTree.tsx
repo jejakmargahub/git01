@@ -606,36 +606,77 @@ export default function FamilyTree({
     }
   }, [contentWidth, contentHeight, members.length]);
   
-  // Auto-center on highlighted node
+  // Auto-center on highlighted node (with ancestral context)
   useEffect(() => {
     if (highlightNodeId && containerRef.current) {
-      const targetNode = allNodes.find(n => n.node.member.id === highlightNodeId);
-      // Also check spouses
-      let targetX = targetNode?.x;
-      let targetY = targetNode?.y;
+      // 1. Identify all nodes to include in the focal area:
+      // - The highlighted node itself
+      // - Its parents
+      // - Its grandparents
+      const targetIds = new Set<string>([highlightNodeId]);
       
-      if (!targetNode) {
-        // Find if it's a spouse
-        for (const n of allNodes) {
-          const spouseIndex = n.node.spouses.findIndex(s => s.id === highlightNodeId);
-          if (spouseIndex !== -1) {
-            targetX = n.spouseX! + spouseIndex * (NODE_WIDTH + SPOUSE_GAP);
-            targetY = n.y;
-            break;
+      // Find parents
+      relationships.forEach(r => {
+        if (r.toMemberId === highlightNodeId && r.relationType === "parent") {
+          targetIds.add(r.fromMemberId);
+          // Find grandparents
+          relationships.forEach(r2 => {
+            if (r2.toMemberId === r.fromMemberId && r2.relationType === "parent") {
+              targetIds.add(r2.fromMemberId);
+            }
+          });
+        }
+      });
+      
+      // 2. Calculate bounding box for these target nodes in layout space
+      let bMinX = Infinity, bMaxX = -Infinity, bMinY = Infinity, bMaxY = -Infinity;
+      
+      targetIds.forEach(id => {
+        let nodeX: number | undefined;
+        let nodeY: number | undefined;
+        
+        const layoutNode = allNodes.find(n => n.node.member.id === id);
+        if (layoutNode) {
+          nodeX = layoutNode.x;
+          nodeY = layoutNode.y;
+        } else {
+          // Check spouses
+          for (const n of allNodes) {
+            const spouseIndex = n.node.spouses.findIndex(s => s.id === id);
+            if (spouseIndex !== -1) {
+              nodeX = n.spouseX! + spouseIndex * (NODE_WIDTH + SPOUSE_GAP);
+              nodeY = n.y;
+              break;
+            }
           }
         }
-      }
+        
+        if (nodeX !== undefined && nodeY !== undefined) {
+          bMinX = Math.min(bMinX, nodeX);
+          bMaxX = Math.max(bMaxX, nodeX + NODE_WIDTH);
+          bMinY = Math.min(bMinY, nodeY);
+          bMaxY = Math.max(bMaxY, nodeY + NODE_HEIGHT);
+        }
+      });
       
-      if (targetX !== undefined && targetY !== undefined) {
+      if (bMinX !== Infinity) {
         const containerWidth = containerRef.current.clientWidth;
         const containerHeight = containerRef.current.clientHeight;
         
-        // We want a good zoom level for the newly added member
-        const targetScale = 0.8; 
+        const boxWidth = bMaxX - bMinX;
+        const boxHeight = bMaxY - bMinY;
+        
+        // Calculate ideal scale to fit the entire lineage context
+        const PADDING = 100;
+        const scaleX = containerWidth / (boxWidth + PADDING * 2);
+        const scaleY = containerHeight / (boxHeight + PADDING * 2);
+        
+        // Cap scale between 0.4 (zoom out) and 0.7 (comfortably readable)
+        const targetScale = Math.min(Math.max(Math.min(scaleX, scaleY), 0.4), 0.7);
         
         setTransform({
-          x: (containerWidth / 2) - (targetX + NODE_WIDTH / 2) * targetScale,
-          y: (containerHeight / 2) - (targetY + NODE_HEIGHT / 2) * targetScale,
+          x: (containerWidth / 2) - ((bMinX + bMaxX) / 2) * targetScale,
+          y: (containerHeight / 2) - ((bMinY + bMaxY) / 2) * targetScale,
           scale: targetScale,
         });
       }
