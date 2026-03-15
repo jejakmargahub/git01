@@ -184,7 +184,7 @@ export default function LoginPage() {
       </button>
 
       {/* REGISTER BUTTON */}
-      <div style={{ marginTop: "8px" }}>
+      <div style={{ marginTop: "16px", marginBottom: "8px" }}>
         <Link 
           href="/register" 
           className="btn btn-full"
@@ -201,28 +201,6 @@ export default function LoginPage() {
         >
           ✨ Daftar Akun Baru (Email / No. HP)
         </Link>
-      </div>
-
-      {/* EMERGENCY BYPASS */}
-      <div style={{ marginTop: "16px", marginBottom: "8px" }}>
-        <button
-          onClick={() => {
-            document.cookie = "bypassAuth=true; path=/";
-            router.push("/dashboard");
-          }}
-          className="btn btn-full"
-          style={{
-            background: "repeating-linear-gradient(45deg, #f59e0b, #f59e0b 10px, #fbbf24 10px, #fbbf24 20px)",
-            color: "black",
-            fontWeight: "bold",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}
-          type="button"
-        >
-          🚧 Akses Langsung Dashboard (Bypass)
-        </button>
       </div>
 
       {/* Register Link 

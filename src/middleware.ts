@@ -4,8 +4,6 @@ import type { NextRequest } from "next/server";
 
 export default function middleware(req: NextRequest) {
   const { nextUrl } = req;
-  const hasBypassCookie = req.cookies.get("bypassAuth")?.value === "true";
-  
   const isAuthPage = nextUrl.pathname.startsWith("/login") || nextUrl.pathname.startsWith("/register");
   const isPublicRoute = nextUrl.pathname === "/" || nextUrl.pathname.startsWith("/invite") || nextUrl.pathname.startsWith("/api/auth");
   const isDashboardPage = nextUrl.pathname.startsWith("/dashboard") || nextUrl.pathname.startsWith("/family") || nextUrl.pathname.startsWith("/profile");
@@ -15,13 +13,9 @@ export default function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Alur 2: Bypass untuk Testing
-  if (hasBypassCookie) {
-    return NextResponse.next();
-  }
-
-  // Alur 3: Lindungi Dashboard dan halaman utama lainnya
-  // (Idealnya menggunakan session dari NextAuth, tapi untuk kemudahan pengujian saat ini kita gunakan redirect ke login jika tidak ada bypass)
+  // Alur 2: Lindungi Dashboard dan halaman utama lainnya
+  // (Pada produksi, NextAuth akan menangani ini. Untuk saat ini kita izinkan agar tidak stuck, 
+  // namun bypass cookie sudah tidak lagi memberikan akses spesial.)
   if (isDashboardPage) {
     // Di sini nanti bisa ditambahkan pengecekan session asli jika perlu
     return NextResponse.next(); 
