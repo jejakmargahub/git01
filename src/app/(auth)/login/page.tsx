@@ -1,22 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+function LoginContent() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const registered = searchParams.get("registered") === "true";
+
+  useEffect(() => {
+    if (searchParams.get("registered") === "true") {
+      setSuccess("✨ Registrasi berhasil! Silakan masuk dengan akun baru Anda.");
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -70,12 +77,12 @@ export default function LoginPage() {
       </div>
 
       {/* Success Message */}
-      {registered && (
+      {success && (
         <div
           className="animate-slide-up"
           style={{
             background: "rgba(34, 197, 94, 0.1)",
-            color: "var(--success, #22c55e)",
+            color: "#16a34a",
             padding: "12px 16px",
             borderRadius: "var(--radius-sm)",
             fontSize: "14px",
@@ -84,7 +91,7 @@ export default function LoginPage() {
             border: "1px solid rgba(34, 197, 94, 0.2)",
           }}
         >
-          ✨ Registrasi berhasil! Silakan masuk dengan akun baru Anda.
+          {success}
         </div>
       )}
 
@@ -224,5 +231,18 @@ export default function LoginPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="card" style={{ padding: "32px 24px", textAlign: "center" }}>
+        <div className="spinner" style={{ margin: "20px auto" }}></div>
+        <p className="text-muted">Memuat halaman masuk...</p>
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
