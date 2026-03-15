@@ -36,7 +36,12 @@ Saya telah melakukan pengujian langsung (live test) pada domain `jejakmarga.my.i
 - [x] **Integritas Data**: Data anggota (19+ orang) dan relasi pohon keluarga sudah termuat dengan benar.
 
 ### Rekaman Proses Verifikasi:
-![Proses Login Live](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/live_login_verification_1773530731419.webp)
+### Update Landing Page 🏠
+- [x] **Tombol Registrasi**: Menambahkan akses cepat pendaftaran di navbar dan hero section.
+- [x] **Grid Fitur**: Memperbarui grid fitur menjadi 4 kolom untuk menyertakan **"Chat Keluarga"** sebagai fitur unggulan.
+- [x] **Responsivitas**: Memastikan layout tetap rapi di perangkat mobile dan desktop.
+
+![Landing Page Features](file:///C:/Users/bpiko/.gemini/antigravity/brain/a7f5de84-003f-4c68-93a8-ba1f4b92355e/landing_page_updated_features_1773532527016.png)
 
 ---
 *Fitur ini sekarang siap digunakan untuk meningkatkan kolaborasi dalam membangun silsilah keluarga Jejak Marga.*
