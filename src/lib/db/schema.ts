@@ -162,6 +162,32 @@ export const messagesRelations = relations(messages, ({ one }) => ({
   }),
 }));
 
+// ==================== BLOG POSTS ====================
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  featuredImage: varchar("featured_image", { length: 500 }),
+  authorId: uuid("author_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  language: varchar("language", { length: 10 }).default("id").notNull(), // 'id', 'en', 'nl', 'zh', 'ja', 'jv', 'sa', 'btk'
+  translationGroupId: uuid("translation_group_id"), // group translations of same article
+  status: varchar("status", { length: 20 }).default("draft").notNull(), // 'draft', 'published', 'archived'
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
+  author: one(users, {
+    fields: [blogPosts.authorId],
+    references: [users.id],
+  }),
+}));
+
 // ==================== TYPE EXPORTS ====================
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferSelect;
