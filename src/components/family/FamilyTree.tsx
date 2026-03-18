@@ -552,31 +552,59 @@ export default function FamilyTree({
   });
 
   // Calculate SVG bounds precisely
-  const allNodes = layouts.flatMap(getAllNodes);
+  const rootNodesPerTree = layouts.map(l => getAllNodes(l));
+  const allNodes = rootNodesPerTree.flat();
+  
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
   let maxY = -Infinity;
 
-  allNodes.forEach((n) => {
+  // Track the largest tree for initial focus
+  let largestTreeIndex = 0;
+  let maxNodes = 0;
+  
+  rootNodesPerTree.forEach((nodes, idx) => {
+    if (nodes.length > maxNodes) {
+      maxNodes = nodes.length;
+      largestTreeIndex = idx;
+    }
+  });
+
+  const mainClusterNodes = rootNodesPerTree[largestTreeIndex] || [];
+  let mainMinX = Infinity, mainMaxX = -Infinity, mainMinY = Infinity, mainMaxY = -Infinity;
+
+  allNodes.forEach((n, idx) => {
     // Left edge
-    minX = Math.min(minX, n.x);
+    const nodeLeft = n.x;
+    minX = Math.min(minX, nodeLeft);
     
     // Right edge (include spouses)
     const nodeRight = n.x + NODE_WIDTH;
     const spouseRight = n.spouseX !== undefined 
       ? n.spouseX + (n.node.spouses.length * (NODE_WIDTH + SPOUSE_GAP)) - SPOUSE_GAP
       : nodeRight;
-    
-    maxX = Math.max(maxX, nodeRight, spouseRight);
+    const rightEdge = Math.max(nodeRight, spouseRight);
+    maxX = Math.max(maxX, rightEdge);
     
     // Vertical
-    minY = Math.min(minY, n.y);
-    maxY = Math.max(maxY, n.y + NODE_HEIGHT);
+    const nodeTop = n.y;
+    const nodeBottom = n.y + NODE_HEIGHT;
+    minY = Math.min(minY, nodeTop);
+    maxY = Math.max(maxY, nodeBottom);
+
+    // If this node belongs to the main cluster, track its bounds too
+    if (mainClusterNodes.includes(n)) {
+      mainMinX = Math.min(mainMinX, nodeLeft);
+      mainMaxX = Math.max(mainMaxX, rightEdge);
+      mainMinY = Math.min(mainMinY, nodeTop);
+      mainMaxY = Math.max(mainMaxY, nodeBottom);
+    }
   });
 
   // Default fallback
   if (minX === Infinity) { minX = 0; maxX = 400; minY = 0; maxY = 300; }
+  if (mainMinX === Infinity) { mainMinX = minX; mainMaxX = maxX; mainMinY = minY; mainMaxY = maxY; }
 
   // Add extra padding specifically for the right side to prevent cutoff bugs
   const PADDING = 120; // Increased to accommodate arrows (63px from edge)
@@ -590,16 +618,20 @@ export default function FamilyTree({
       const containerWidth = containerRef.current.clientWidth;
       const containerHeight = containerRef.current.clientHeight;
       
-      const scaleX = containerWidth / contentWidth;
-      const scaleY = containerHeight / contentHeight;
+      // Calculate fit scale based on MAIN cluster to ensure it's prominent
+      const mainWidth = mainMaxX - mainMinX + PADDING * 2;
+      const mainHeight = mainMaxY - mainMinY + PADDING * 2;
+      
+      const scaleX = containerWidth / mainWidth;
+      const scaleY = containerHeight / mainHeight;
       
       // Limit scaling so it's readable on mobile (min 0.4) and not huge on desktop (max 1.0)
       const idealScale = Math.min(scaleX, scaleY) * 0.95;
-      const scale = Math.max(Math.min(idealScale, 1), 0.4);
+      const scale = Math.max(Math.min(idealScale, 1.2), 0.4);
       
       setTransform({
-        // Calculate initial offset to center content
-        x: (containerWidth / 2) - ( (minX + maxX + NODE_WIDTH) / 2 ) * scale,
+        // Calculate initial offset to center THE MAIN CLUSTER
+        x: (containerWidth / 2) - ((mainMinX + mainMaxX) / 2) * scale,
         y: 60,
         scale,
       });
