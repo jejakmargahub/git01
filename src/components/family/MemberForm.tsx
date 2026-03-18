@@ -157,7 +157,7 @@ export default function MemberForm({
           signature: authData.signature,
           token: authData.token,
           expire: authData.expire,
-          folder: "/members"
+          folder: `/members/${familyId}`
         });
         
         if ("url" in result) {
