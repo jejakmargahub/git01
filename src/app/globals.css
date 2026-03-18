@@ -4,6 +4,7 @@
   --background: #f8fafc;
   --foreground: #111827;
   --primary: #2563eb;
+  --primary-rgb: 37, 99, 235;
   --primary-light: #60a5fa;
   --primary-dark: #1d4ed8;
   --secondary: #4b5563;
@@ -32,6 +33,7 @@
     --background: #121212;
     --foreground: #ffffff;
     --primary: #60a5fa;
+    --primary-rgb: 96, 165, 250;
     --primary-light: #93c5fd;
     --primary-dark: #3b82f6;
     --secondary: #9ca3af;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import type { Family, FamilyMember, Relationship } from "@/lib/db/schema";
@@ -140,6 +140,18 @@ export default function FamilyPageClient({
     await updateMember(familyId, memberId, formData);
     router.refresh();
   };
+
+  // Auto-scroll to new member in list view
+  useEffect(() => {
+    if (viewMode === "list" && highlightNodeId) {
+      setTimeout(() => {
+        const element = document.getElementById(`member-${highlightNodeId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 500); // Wait for refresh/render
+    }
+  }, [viewMode, highlightNodeId]);
 
   const handleDeleteMember = async () => {
     if (!selectedMember) return;
@@ -373,17 +385,20 @@ export default function FamilyPageClient({
                 return (
                   <div
                     key={member.id}
-                    className="card card-interactive"
-                    onClick={() => handleNodeClick(member.id)}
+                    id={`member-${member.id}`}
+                    className="card ripple"
                     style={{
-                      padding: "14px 16px",
                       display: "flex",
                       alignItems: "center",
                       gap: "12px",
-                      background: deceased
-                        ? "var(--deceased-bg)"
-                        : "var(--card)",
+                      padding: "12px 16px",
+                      cursor: "pointer",
+                      marginBottom: "8px",
+                      border: highlightNodeId === member.id ? "2px solid var(--primary)" : "1px solid var(--card-border)",
+                      background: highlightNodeId === member.id ? "rgba(var(--primary-rgb), 0.05)" : "var(--card)",
+                      transition: "all 0.3s ease",
                     }}
+                    onClick={() => handleNodeClick(member.id)}
                   >
                     <span
                       style={{
