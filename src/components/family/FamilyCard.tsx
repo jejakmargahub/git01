@@ -188,30 +188,33 @@ export default function FamilyCard({
           >
             {copied ? (
               <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", justifyContent: "center" }}>
-                <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "14px" }}>✅ Tersalin!</span>
+                <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "14px" }}>✅ Kode Undangan Tersalin!</span>
               </div>
             ) : (
               <>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "500" }}>KODE:</span>
+                  <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase" }}>Kode Undangan:</span>
                   <code style={{ fontSize: "14px", fontWeight: "700", color: "var(--primary)", letterSpacing: "1px" }}>
                     {family.inviteCode}
                   </code>
                 </div>
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  style={{ color: "var(--primary)", opacity: 0.7 }}
-                >
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
+                <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <span style={{ fontSize: "10px", color: "var(--muted)" }}>Salin & Bagikan</span>
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    style={{ color: "var(--primary)", opacity: 0.7 }}
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                </div>
               </>
             )}
           </div>
