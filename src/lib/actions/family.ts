@@ -97,7 +97,14 @@ export async function getUserFamilies() {
 
   const userAccess = await db
     .select({
-      family: families,
+      family: {
+        id: families.id,
+        name: families.name,
+        description: families.description,
+        inviteCode: families.inviteCode,
+        createdBy: families.createdBy,
+        createdAt: families.createdAt,
+      },
       role: familyAccess.role,
       memberCount: count(familyMembers.id),
     })
