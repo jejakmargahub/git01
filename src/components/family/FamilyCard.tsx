@@ -140,6 +140,51 @@ export default function FamilyCard({
             {memberCount} anggota
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {/* Invite Code - Compact version */}
+            {family.inviteCode && (
+              <div
+                onClick={handleCopy}
+                style={{
+                  padding: "4px 10px",
+                  background: copied ? "rgba(var(--success-rgb, 22, 163, 74), 0.1)" : "rgba(var(--primary-rgb), 0.05)",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  cursor: copied ? "default" : "pointer",
+                  transition: "all 0.2s",
+                  border: copied ? "1px solid var(--success)" : "1px dashed rgba(var(--primary-rgb), 0.2)",
+                  height: "32px",
+                }}
+                className="invite-code-copy"
+                title={copied ? "✅ Kode Tersalin!" : "Salin & Bagikan khusus untuk Keluarga"}
+              >
+                {copied ? (
+                  <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>✅ Tersalin</span>
+                ) : (
+                  <>
+                    <code style={{ fontSize: "12px", fontWeight: "700", color: "var(--primary)", letterSpacing: "0.5px" }}>
+                      {family.inviteCode}
+                    </code>
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      style={{ color: "var(--primary)", opacity: 0.7 }}
+                    >
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                    </svg>
+                  </>
+                )}
+              </div>
+            )}
+
             <Link
               href={`/family/${family.id}/chat`}
               onClick={(e) => e.stopPropagation()}
@@ -154,75 +199,19 @@ export default function FamilyCard({
                 fontSize: "16px",
                 textDecoration: "none",
                 transition: "all 0.2s",
+                flexShrink: 0,
               }}
               className="hover-scale"
               title="Chat Keluarga"
             >
               💬
             </Link>
-            <span className={`badge badge-${role}`}>{roleLabels[role]}</span>
+            <span className={`badge badge-${role}`} style={{ flexShrink: 0 }}>{roleLabels[role]}</span>
             {role === "admin" && (
-              <span style={{ fontSize: "16px", opacity: 0.6 }} title="Pengaturan">⚙️</span>
+              <span style={{ fontSize: "16px", opacity: 0.6, flexShrink: 0 }} title="Pengaturan">⚙️</span>
             )}
           </div>
         </div>
-
-        {/* Invite Code row (Visible to all for collaboration) */}
-        {family.inviteCode && (
-          <div style={{ marginTop: "16px" }}>
-            <div
-              onClick={handleCopy}
-              style={{
-                padding: "8px 12px",
-                background: copied ? "rgba(var(--success-rgb, 22, 163, 74), 0.1)" : "rgba(var(--primary-rgb), 0.05)",
-                borderRadius: "10px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                cursor: copied ? "default" : "pointer",
-                transition: "all 0.2s",
-                border: copied ? "1px solid var(--success)" : "1px dashed rgba(var(--primary-rgb), 0.2)",
-              }}
-              className="invite-code-copy"
-              title={copied ? "Kode tersalin" : "Klik untuk salin kode undangan"}
-            >
-              {copied ? (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", justifyContent: "center" }}>
-                  <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "14px" }}>✅ Kode Undangan Tersalin!</span>
-                </div>
-              ) : (
-                <>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ fontSize: "10px", color: "var(--muted)", fontWeight: "600", textTransform: "uppercase" }}>Kode Undangan:</span>
-                    <code style={{ fontSize: "14px", fontWeight: "700", color: "var(--primary)", letterSpacing: "1px" }}>
-                      {family.inviteCode}
-                    </code>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                    <span style={{ fontSize: "10px", color: "var(--muted)" }}>Salin</span>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      style={{ color: "var(--primary)", opacity: 0.7 }}
-                    >
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                    </svg>
-                  </div>
-                </>
-              )}
-            </div>
-            <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "6px", paddingLeft: "4px", lineHeight: "1.4" }}>
-              💡 Bagikan kode ini agar orang lain bisa ikut mengedit bagan ini.
-            </p>
-          </div>
-        )}
       </div>
     </Link>
   );
