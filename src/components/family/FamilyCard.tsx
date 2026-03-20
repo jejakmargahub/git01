@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import { useState } from "react";
 
 interface FamilyCardProps {
   family: {
@@ -24,6 +23,18 @@ export default function FamilyCard({
   role,
   memberCount,
 }: FamilyCardProps) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (copied) return;
+
+    navigator.clipboard.writeText(family.inviteCode || "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <Link
       href={`/family/${family.id}`}
@@ -159,52 +170,50 @@ export default function FamilyCard({
         {/* Invite Code row (Visible to all for collaboration) */}
         {family.inviteCode && (
           <div
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              navigator.clipboard.writeText(family.inviteCode || "");
-              const target = e.currentTarget;
-              const originalContent = target.innerHTML;
-              target.innerHTML = `<span style="color: var(--success); font-weight: 600;">✅ Tersalin!</span>`;
-              setTimeout(() => {
-                target.innerHTML = originalContent;
-              }, 2000);
-            }}
+            onClick={handleCopy}
             style={{
               marginTop: "12px",
               padding: "8px 12px",
-              background: "rgba(var(--primary-rgb), 0.05)",
+              background: copied ? "rgba(var(--success-rgb, 22, 163, 74), 0.1)" : "rgba(var(--primary-rgb), 0.05)",
               borderRadius: "10px",
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              cursor: "pointer",
+              cursor: copied ? "default" : "pointer",
               transition: "all 0.2s",
-              border: "1px dashed rgba(var(--primary-rgb), 0.2)",
+              border: copied ? "1px solid var(--success)" : "1px dashed rgba(var(--primary-rgb), 0.2)",
             }}
             className="invite-code-copy"
-            title="Klik untuk salin kode undangan"
+            title={copied ? "Kode tersalin" : "Klik untuk salin kode undangan"}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "500" }}>KODE:</span>
-              <code style={{ fontSize: "14px", fontWeight: "700", color: "var(--primary)", letterSpacing: "1px" }}>
-                {family.inviteCode}
-              </code>
-            </div>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              style={{ color: "var(--primary)", opacity: 0.7 }}
-            >
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-            </svg>
+            {copied ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", width: "100%", justifyContent: "center" }}>
+                <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "14px" }}>✅ Tersalin!</span>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "500" }}>KODE:</span>
+                  <code style={{ fontSize: "14px", fontWeight: "700", color: "var(--primary)", letterSpacing: "1px" }}>
+                    {family.inviteCode}
+                  </code>
+                </div>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  style={{ color: "var(--primary)", opacity: 0.7 }}
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </>
+            )}
           </div>
         )}
       </div>
