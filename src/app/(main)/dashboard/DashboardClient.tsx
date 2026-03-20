@@ -12,6 +12,7 @@ interface Family {
   description: string | null;
   createdBy: string;
   isPublic: boolean;
+  inviteCode: string | null;
   createdAt: Date;
 }
 

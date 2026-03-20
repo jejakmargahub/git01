@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { families, familyAccess, familyMembers } from "@/lib/db/schema";
+import { families, familyAccess, familyMembers, users } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
 import { eq, and, count, desc } from "drizzle-orm";
@@ -22,6 +22,7 @@ export async function createFamily(formData: FormData) {
       name,
       description: description || null,
       createdBy: session.user.id,
+      inviteCode: `JM-${uuidv4().split("-")[0].toUpperCase()}`,
     })
     .returning();
 
@@ -107,6 +108,24 @@ export async function getUserFamilies() {
     .groupBy(families.id, familyAccess.role)
     .orderBy(desc(families.createdAt));
 
+  // Self-healing: Ensure all returning families have invite codes
+  let updated = false;
+  for (const item of userAccess) {
+    if (!item.family.inviteCode) {
+      const newCode = `JM-${uuidv4().split("-")[0].toUpperCase()}`;
+      await db
+        .update(families)
+        .set({ inviteCode: newCode })
+        .where(eq(families.id, item.family.id));
+      item.family.inviteCode = newCode;
+      updated = true;
+    }
+  }
+
+  if (updated) {
+    revalidatePath("/dashboard");
+  }
+
   return userAccess;
 }
 
@@ -176,4 +195,32 @@ export async function joinFamily(inviteCode: string) {
 
   revalidatePath("/dashboard");
   return family.id;
+}
+
+export async function ensureAllFamiliesHaveCodes() {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Only superadmin or internal system should handle this bulk task
+  const [user] = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1);
+  if (user?.role !== "superadmin") return { count: 0 };
+
+  const missingCodes = await db
+    .select()
+    .from(families)
+    .where(eq(families.inviteCode, null as any)); // Using as any to bypass TS for the null check in drizzle
+
+  for (const family of missingCodes) {
+    const newCode = `JM-${uuidv4().split("-")[0].toUpperCase()}`;
+    await db
+      .update(families)
+      .set({ inviteCode: newCode })
+      .where(eq(families.id, family.id));
+  }
+
+  if (missingCodes.length > 0) {
+    revalidatePath("/dashboard");
+  }
+
+  return { count: missingCodes.length };
 }
