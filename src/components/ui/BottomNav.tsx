@@ -67,22 +67,7 @@ export default function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: "var(--nav-bg)",
-        borderTop: "1px solid var(--card-border)",
-        display: "flex",
-        justifyContent: "space-around",
-        alignItems: "center",
-        height: "68px",
-        zIndex: 40,
-        paddingBottom: "env(safe-area-inset-bottom, 0px)",
-      }}
-    >
+    <nav className="bottom-nav">
       {navItems.map((item) => {
         const isActive =
           pathname === item.href || pathname.startsWith(item.href + "/");
@@ -90,6 +75,7 @@ export default function BottomNav() {
           <Link
             key={item.href}
             href={item.href}
+            className={`nav-item ${isActive ? "active" : ""}`}
             style={{
               display: "flex",
               flexDirection: "column",
@@ -100,18 +86,20 @@ export default function BottomNav() {
               textDecoration: "none",
               fontSize: "12px",
               fontWeight: isActive ? "700" : "500",
-              transition: "color 0.2s ease",
+              transition: "all 0.2s ease",
               minWidth: "72px",
               minHeight: "48px",
               justifyContent: "center",
               touchAction: "manipulation",
-              borderRadius: "8px",
+              borderRadius: "12px",
             }}
           >
             <span style={{ transition: "transform 0.2s ease", transform: isActive ? "scale(1.15)" : "scale(1)" }}>
               {item.icon}
             </span>
-            {item.label}
+            <span style={{ transition: "all 0.2s ease" }}>
+              {item.label}
+            </span>
           </Link>
         );
       })}

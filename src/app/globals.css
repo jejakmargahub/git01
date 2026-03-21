@@ -26,6 +26,7 @@
   --radius: 16px;
   --radius-sm: 10px;
   --radius-lg: 20px;
+  --nav-height: 68px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -408,7 +409,65 @@ select.input-field {
 /* ==================== UTILITIES ==================== */
 .page-container {
   min-height: 100dvh;
-  padding-bottom: 76px; /* space for bottom nav */
+  padding-bottom: var(--nav-height);
+}
+
+/* ==================== NAVIGATION (Desktop & Mobile) ==================== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--nav-bg);
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: var(--nav-height);
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    bottom: 24px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: auto;
+    min-width: 320px;
+    padding: 0 16px;
+    background: color-mix(in srgb, var(--card) 85%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 40px;
+    height: 64px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  .nav-item {
+    min-width: 90px !important;
+    padding: 8px 12px !important;
+    flex-direction: row !important; /* Horizontal layout on desktop */
+    gap: 10px !important;
+    border-radius: 30px !important;
+    height: 48px;
+  }
+
+  .nav-item:hover {
+    background: rgba(var(--primary-rgb), 0.08);
+    color: var(--primary) !important;
+  }
+
+  .nav-item.active {
+    background: rgba(var(--primary-rgb), 0.12);
+  }
+
+  .nav-item span:last-child {
+    font-size: 14px !important;
+  }
 }
 
 .page-header {
