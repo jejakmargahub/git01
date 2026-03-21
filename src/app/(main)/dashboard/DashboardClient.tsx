@@ -12,6 +12,8 @@ interface Family {
   description: string | null;
   createdBy: string;
   isPublic: boolean;
+  isPublicViewEnabled: boolean;
+  publicViewSlug: string | null;
   inviteCode: string | null;
   createdAt: Date;
 }

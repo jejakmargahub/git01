@@ -193,7 +193,7 @@ export async function getMemberRelationships(familyId: string, memberId: string)
 
   // Sanitize if public
   if (!session?.user?.id && isPublic) {
-    return rels.map(r => ({
+    return rels.map((r: any) => ({
       ...r,
       relatedMember: {
         ...r.relatedMember,
