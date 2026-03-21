@@ -109,7 +109,7 @@ export default function InviteDialog({
               ) : (
                 <div style={{ padding: "16px", background: "var(--input-bg)", borderRadius: "10px", textAlign: "center", border: "1px dashed var(--card-border)" }}>
                   <p style={{ fontSize: "13px", color: "var(--muted)", marginBottom: "8px" }}>
-                    Tampilan publik saat ini sedang **Matematikan**.
+                    Tampilan publik saat ini sedang **Dimatikan**.
                   </p>
                   <p style={{ fontSize: "12px", color: "var(--muted)" }}>
                     Silakan aktifkan terlebih dahulu melalui <br/> <strong>Ikon Gerigi (⚙️) Pengaturan</strong>.
