@@ -155,6 +155,54 @@ export default function FamilyCard({
               {memberCount} anggota
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              {/* Invite Code Badge - Restored for Admin quick access */}
+              {family.inviteCode && (
+                <div
+                  onClick={handleCopy}
+                  className="hover-scale"
+                  style={{
+                    padding: "4px 10px",
+                    background: "rgba(59, 130, 246, 0.12)",
+                    borderRadius: "20px",
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: "#3b82f6",
+                    cursor: "pointer",
+                    border: "1px solid rgba(59, 130, 246, 0.3)",
+                    fontFamily: "monospace",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    height: "32px",
+                    position: "relative"
+                  }}
+                  title="Klik untuk salin kode undangan (Editor)"
+                >
+                  {family.inviteCode}
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+                  </svg>
+                  {copied && (
+                    <span style={{ 
+                      position: "absolute", 
+                      bottom: "100%", 
+                      left: "50%", 
+                      transform: "translateX(-50%)", 
+                      background: "#3b82f6", 
+                      color: "white", 
+                      padding: "2px 8px", 
+                      borderRadius: "10px", 
+                      fontSize: "10px", 
+                      marginBottom: "6px",
+                      whiteSpace: "nowrap",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.2)"
+                    }}>
+                      Tersalin!
+                    </span>
+                  )}
+                </div>
+              )}
+
               {/* Public Sharing Button */}
               {family.isPublicViewEnabled ? (
                 <button
