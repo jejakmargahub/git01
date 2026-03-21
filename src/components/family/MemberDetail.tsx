@@ -92,8 +92,8 @@ export default function MemberDetail({
                 background: isDeceased
                   ? "var(--deceased-bg)"
                   : member.gender === "M"
-                  ? "rgba(59, 130, 246, 0.1)"
-                  : "rgba(236, 72, 153, 0.1)",
+                    ? "rgba(59, 130, 246, 0.1)"
+                    : "rgba(236, 72, 153, 0.1)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

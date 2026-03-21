@@ -537,7 +537,8 @@ export default function FamilyPageClient({
       {/* Invite Dialog */}
       <InviteDialog
         familyId={family.id}
-        initialCode={(family as any).inviteCode || null}
+        isPublicViewEnabled={family.isPublicViewEnabled}
+        publicViewSlug={family.publicViewSlug}
         open={showInviteDialog}
         onClose={() => setShowInviteDialog(false)}
       />

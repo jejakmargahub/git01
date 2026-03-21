@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { generateInviteCode, exportFamilyData } from "@/lib/actions/family";
+import { generateInviteCode, exportFamilyData, togglePublicView, regeneratePublicSlug } from "@/lib/actions/family";
 
 interface FamilySettingsDialogProps {
   familyId: string;
   familyName: string;
   currentInviteCode: string;
+  isPublicViewEnabled: boolean;
+  publicViewSlug: string | null;
   onClose: () => void;
   onUpdate: () => void;
 }
@@ -15,14 +17,19 @@ export default function FamilySettingsDialog({
   familyId,
   familyName,
   currentInviteCode,
+  isPublicViewEnabled,
+  publicViewSlug,
   onClose,
   onUpdate,
 }: FamilySettingsDialogProps) {
   const [isResetting, setIsResetting] = useState(false);
+  const [isTogglingPublic, setIsTogglingPublic] = useState(false);
+  const [isRegeneratingSlug, setIsRegeneratingSlug] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"json" | "csv" | "pdf">("json");
   const [includePhotos, setIncludePhotos] = useState(true);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const handleResetCode = async () => {
     if (!confirm("Apakah Anda yakin ingin mengganti kode undangan? Kode lama tidak akan bisa digunakan lagi.")) return;
@@ -38,6 +45,45 @@ export default function FamilySettingsDialog({
     } finally {
       setIsResetting(false);
     }
+  };
+
+  const handleTogglePublic = async () => {
+    if (!isPublicViewEnabled && !confirm("Mengaktifkan Tampilan Publik akan membuat pohon keluarga ini dapat dilihat oleh siapa pun yang memiliki tautan tanpa perlu login. Lanjutkan?")) return;
+
+    setIsTogglingPublic(true);
+    setMessage(null);
+    try {
+      await togglePublicView(familyId, !isPublicViewEnabled);
+      setMessage({ type: "success", text: `Tampilan publik ${!isPublicViewEnabled ? "diaktifkan" : "dimatikan"}` });
+      onUpdate();
+    } catch (error) {
+      setMessage({ type: "error", text: error instanceof Error ? error.message : "Gagal mengubah pengaturan publik" });
+    } finally {
+      setIsTogglingPublic(false);
+    }
+  };
+
+  const handleRegenerateSlug = async () => {
+    if (!confirm("Apakah Anda yakin ingin mengganti link publik? Link lama akan otomatis tidak berlaku.")) return;
+
+    setIsRegeneratingSlug(true);
+    setMessage(null);
+    try {
+      await regeneratePublicSlug(familyId);
+      setMessage({ type: "success", text: "Link publik berhasil diperbarui!" });
+      onUpdate();
+    } catch (error) {
+      setMessage({ type: "error", text: error instanceof Error ? error.message : "Gagal memperbarui link" });
+    } finally {
+      setIsRegeneratingSlug(false);
+    }
+  };
+
+  const copyPublicLink = () => {
+    const url = `${window.location.origin}/public/${publicViewSlug}`;
+    navigator.clipboard.writeText(url);
+    setCopiedLink(true);
+    setTimeout(() => setCopiedLink(false), 2000);
   };
 
   const handleExport = async () => {
@@ -157,6 +203,96 @@ export default function FamilySettingsDialog({
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+          {/* Section: Public View */}
+          <section>
+            <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+              🌐 Tampilan Publik (Link)
+            </h4>
+            <div style={{ 
+              padding: "16px", 
+              background: "var(--input-bg)", 
+              borderRadius: "16px", 
+              border: "1px solid var(--card-border)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "16px"
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontSize: "14px", fontWeight: "500" }}>Aktifkan Link Publik</span>
+                <button 
+                  onClick={handleTogglePublic}
+                  disabled={isTogglingPublic}
+                  style={{
+                    width: "44px",
+                    height: "24px",
+                    borderRadius: "12px",
+                    background: isPublicViewEnabled ? "var(--primary)" : "var(--muted)",
+                    position: "relative",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.3s"
+                  }}
+                >
+                  <div style={{
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    background: "white",
+                    position: "absolute",
+                    top: "3px",
+                    left: isPublicViewEnabled ? "23px" : "3px",
+                    transition: "all 0.3s"
+                  }} />
+                </button>
+              </div>
+
+              {isPublicViewEnabled && (
+                <>
+                  <div style={{ 
+                    padding: "12px", 
+                    background: "var(--card)", 
+                    borderRadius: "10px", 
+                    border: "1px solid var(--card-border)",
+                    fontSize: "13px",
+                    wordBreak: "break-all",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "8px"
+                  }}>
+                    <span style={{ color: "var(--muted)", fontSize: "11px" }}>Tautan Publik Aktif:</span>
+                    <code style={{ color: "var(--primary)", fontWeight: "600" }}>
+                      jejakmarga.my.id/public/{publicViewSlug}
+                    </code>
+                  </div>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button 
+                      onClick={copyPublicLink}
+                      className="btn btn-primary"
+                      style={{ flex: 1, fontSize: "13px", minHeight: "36px" }}
+                    >
+                      {copiedLink ? "✅ Tersalin" : "Salin Tautan Publik"}
+                    </button>
+                    <button 
+                      onClick={handleRegenerateSlug}
+                      disabled={isRegeneratingSlug}
+                      className="btn btn-secondary"
+                      style={{ fontSize: "12px", minHeight: "36px", width: "40px" }}
+                      title="Ganti Link (Link lama akan mati)"
+                    >
+                      🔄
+                    </button>
+                  </div>
+                </>
+              )}
+              
+              <p style={{ fontSize: "12px", color: "var(--muted)", lineHeight: "1.4" }}>
+                {isPublicViewEnabled 
+                  ? "⚠️ Siapa pun dengan link ini bisa melihat pohon keluarga Anda tanpa login. Data sensitif (HP, Tgl Lahir) otomatis disembunyikan." 
+                  : "Tampilan publik dinonaktifkan. Hanya anggota terdaftar yang dapat melihat pohon keluarga ini."}
+              </p>
+            </div>
+          </section>
+
           {/* Section: Invite Code */}
           <section>
             <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>

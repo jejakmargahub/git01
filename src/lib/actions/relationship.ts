@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { relationships, familyMembers, familyAccess } from "@/lib/db/schema";
+import { relationships, familyMembers, familyAccess, families } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, and, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
@@ -140,7 +140,34 @@ export async function removeRelationship(familyId: string, relationshipId: strin
 
 export async function getMemberRelationships(familyId: string, memberId: string) {
   const session = await auth();
-  if (!session?.user?.id) throw new Error("Unauthorized");
+  
+  // Check if it's a public family
+  const [family] = await db
+    .select({ isPublicViewEnabled: families.isPublicViewEnabled })
+    .from(families)
+    .where(eq(families.id, familyId))
+    .limit(1);
+
+  const isPublic = family?.isPublicViewEnabled === true;
+
+  if (!session?.user?.id && !isPublic) {
+    throw new Error("Unauthorized");
+  }
+
+  // If authenticated, check if member has access to this family
+  if (session?.user?.id && !isPublic) {
+    const [access] = await db
+      .select()
+      .from(familyAccess)
+      .where(
+        and(
+          eq(familyAccess.familyId, familyId),
+          eq(familyAccess.userId, session.user.id)
+        )
+      )
+      .limit(1);
+    if (!access) throw new Error("Unauthorized");
+  }
 
   const rels = await db
     .select({
@@ -163,6 +190,18 @@ export async function getMemberRelationships(familyId: string, memberId: string)
         eq(relationships.fromMemberId, memberId)
       )
     );
+
+  // Sanitize if public
+  if (!session?.user?.id && isPublic) {
+    return rels.map(r => ({
+      ...r,
+      relatedMember: {
+        ...r.relatedMember,
+        phone: null,
+        bio: null
+      }
+    }));
+  }
 
   return rels;
 }

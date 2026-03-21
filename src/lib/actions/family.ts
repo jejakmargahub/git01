@@ -23,6 +23,7 @@ export async function createFamily(formData: FormData) {
       description: description || null,
       createdBy: session.user.id,
       inviteCode: `JM-${uuidv4().split("-")[0].toUpperCase()}`,
+      publicViewSlug: uuidv4().replace(/-/g, ""), // Long random string for public URL
     })
     .returning();
 
@@ -102,6 +103,8 @@ export async function getUserFamilies() {
         name: families.name,
         description: families.description,
         inviteCode: families.inviteCode,
+        isPublicViewEnabled: families.isPublicViewEnabled,
+        publicViewSlug: families.publicViewSlug,
         createdBy: families.createdBy,
         createdAt: families.createdAt,
       },
@@ -115,17 +118,26 @@ export async function getUserFamilies() {
     .groupBy(families.id, familyAccess.role)
     .orderBy(desc(families.createdAt));
 
-  // Self-healing: Ensure all returning families have invite codes
+  // Self-healing: Ensure all returning families have invite codes and public slugs
   let updated = false;
   for (const item of userAccess) {
+    const updates: any = {};
     if (!item.family.inviteCode) {
-      const newCode = `JM-${uuidv4().split("-")[0].toUpperCase()}`;
+      updates.inviteCode = `JM-${uuidv4().split("-")[0].toUpperCase()}`;
+      item.family.inviteCode = updates.inviteCode;
+      updated = true;
+    }
+    if (!item.family.publicViewSlug) {
+      updates.publicViewSlug = uuidv4().replace(/-/g, "");
+      item.family.publicViewSlug = updates.publicViewSlug;
+      updated = true;
+    }
+
+    if (Object.keys(updates).length > 0) {
       await db
         .update(families)
-        .set({ inviteCode: newCode })
+        .set(updates)
         .where(eq(families.id, item.family.id));
-      item.family.inviteCode = newCode;
-      updated = true;
     }
   }
 
@@ -274,4 +286,64 @@ export async function exportFamilyData(familyId: string) {
     exportedAt: new Date().toISOString(),
     version: "1.0",
   };
+}
+
+export async function togglePublicView(familyId: string, enabled: boolean) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Check admin access
+  const [access] = await db
+    .select()
+    .from(familyAccess)
+    .where(
+      and(
+        eq(familyAccess.familyId, familyId),
+        eq(familyAccess.userId, session.user.id),
+        eq(familyAccess.role, "admin")
+      )
+    )
+    .limit(1);
+
+  if (!access) throw new Error("Hanya admin yang dapat mengubah pengaturan publik");
+
+  await db
+    .update(families)
+    .set({ isPublicViewEnabled: enabled })
+    .where(eq(families.id, familyId));
+
+  revalidatePath(`/family/${familyId}`);
+  revalidatePath("/dashboard");
+  return { success: true, enabled };
+}
+
+export async function regeneratePublicSlug(familyId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Check admin access
+  const [access] = await db
+    .select()
+    .from(familyAccess)
+    .where(
+      and(
+        eq(familyAccess.familyId, familyId),
+        eq(familyAccess.userId, session.user.id),
+        eq(familyAccess.role, "admin")
+      )
+    )
+    .limit(1);
+
+  if (!access) throw new Error("Hanya admin yang dapat mengubah link publik");
+
+  const newSlug = uuidv4().replace(/-/g, "");
+
+  await db
+    .update(families)
+    .set({ publicViewSlug: newSlug })
+    .where(eq(families.id, familyId));
+
+  revalidatePath(`/family/${familyId}`);
+  revalidatePath("/dashboard");
+  return newSlug;
 }

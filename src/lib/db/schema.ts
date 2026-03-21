@@ -34,7 +34,9 @@ export const families = pgTable("families", {
   createdBy: uuid("created_by")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  isPublic: boolean("is_public").default(false).notNull(),
+  isPublic: boolean("is_public").default(false).notNull(), // Existing field for search visibility
+  isPublicViewEnabled: boolean("is_public_view_enabled").default(false).notNull(), // New field for link sharing
+  publicViewSlug: varchar("public_view_slug", { length: 100 }).unique(), // Unique slug for public view
   inviteCode: varchar("invite_code", { length: 50 }).unique(), // Secret key for invitations
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

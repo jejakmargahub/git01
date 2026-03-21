@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import FamilySettingsDialog from "./FamilySettingsDialog";
+import InviteDialog from "./InviteDialog";
 import { useRouter } from "next/navigation";
 
 interface FamilyCardProps {
@@ -9,6 +10,8 @@ interface FamilyCardProps {
     name: string;
     description: string | null;
     inviteCode: string | null;
+    isPublicViewEnabled: boolean;
+    publicViewSlug: string | null;
   };
   role: string;
   memberCount: number;
@@ -27,6 +30,7 @@ export default function FamilyCard({
 }: FamilyCardProps) {
   const [copied, setCopied] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
   const router = useRouter();
 
   const handleCopy = (e: React.MouseEvent) => {
@@ -151,48 +155,36 @@ export default function FamilyCard({
               {memberCount} anggota
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              {/* Invite Code - Compact version */}
-              {family.inviteCode && (
-                <div
-                  onClick={handleCopy}
+              {/* Public Sharing Button */}
+              {family.isPublicViewEnabled ? (
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowInviteDialog(true);
+                  }}
                   style={{
-                    padding: "4px 10px",
-                    background: copied ? "rgba(var(--success-rgb, 22, 163, 74), 0.1)" : "rgba(var(--primary-rgb), 0.05)",
-                    borderRadius: "8px",
+                    padding: "4px 12px",
+                    background: "rgba(var(--primary-rgb), 0.1)",
+                    borderRadius: "20px",
                     display: "flex",
                     alignItems: "center",
                     gap: "6px",
-                    cursor: copied ? "default" : "pointer",
+                    cursor: "pointer",
                     transition: "all 0.2s",
-                    border: copied ? "1px solid var(--success)" : "1px dashed rgba(var(--primary-rgb), 0.2)",
+                    border: "1px solid var(--primary)",
                     height: "32px",
+                    fontSize: "12px",
+                    fontWeight: "600",
+                    color: "var(--primary)"
                   }}
-                  className="invite-code-copy"
-                  title={copied ? "✅ Kode Tersalin!" : "Salin & Bagikan khusus untuk Keluarga"}
+                  title="Bagikan Link Publik"
                 >
-                  {copied ? (
-                    <span style={{ color: "var(--success)", fontWeight: "600", fontSize: "12px", whiteSpace: "nowrap" }}>✅ Tersalin</span>
-                  ) : (
-                    <>
-                      <code style={{ fontSize: "12px", fontWeight: "700", color: "var(--primary)", letterSpacing: "0.5px" }}>
-                        {family.inviteCode}
-                      </code>
-                      <svg
-                        width="12"
-                        height="12"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        style={{ color: "var(--primary)", opacity: 0.7 }}
-                      >
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
-                    </>
-                  )}
+                  🌐 Bagikan
+                </button>
+              ) : (
+                <div style={{ fontSize: "11px", color: "var(--muted)", fontStyle: "italic" }}>
+                  Privat 🔒
                 </div>
               )}
 
@@ -247,10 +239,22 @@ export default function FamilyCard({
           familyId={family.id}
           familyName={family.name}
           currentInviteCode={family.inviteCode || ""}
+          isPublicViewEnabled={family.isPublicViewEnabled}
+          publicViewSlug={family.publicViewSlug}
           onClose={() => setShowSettings(false)}
           onUpdate={() => {
             router.refresh();
           }}
+        />
+      )}
+
+      {showInviteDialog && (
+        <InviteDialog
+          familyId={family.id}
+          isPublicViewEnabled={family.isPublicViewEnabled}
+          publicViewSlug={family.publicViewSlug}
+          open={showInviteDialog}
+          onClose={() => setShowInviteDialog(false)}
         />
       )}
     </>
