@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { families, familyAccess, familyMembers, users } from "@/lib/db/schema";
+import { families, familyAccess, familyMembers, users, relationships } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { v4 as uuidv4 } from "uuid";
 import { eq, and, count, desc } from "drizzle-orm";
@@ -230,4 +230,48 @@ export async function ensureAllFamiliesHaveCodes() {
   }
 
   return { count: missingCodes.length };
+}
+
+export async function exportFamilyData(familyId: string) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Check access (any member can export for backup, or admin only? User said "pilih format ekspor")
+  // Usually, backup is for admins, but let's allow anyone with access for now, or restrict to admin/editor.
+  const [access] = await db
+    .select()
+    .from(familyAccess)
+    .where(
+      and(
+        eq(familyAccess.familyId, familyId),
+        eq(familyAccess.userId, session.user.id)
+      )
+    )
+    .limit(1);
+
+  if (!access) throw new Error("Tidak memiliki akses ke bagan ini");
+
+  const [family] = await db
+    .select()
+    .from(families)
+    .where(eq(families.id, familyId))
+    .limit(1);
+
+  const members = await db
+    .select()
+    .from(familyMembers)
+    .where(eq(familyMembers.familyId, familyId));
+
+  const rels = await db
+    .select()
+    .from(relationships)
+    .where(eq(relationships.familyId, familyId));
+
+  return {
+    family,
+    members,
+    relationships: rels,
+    exportedAt: new Date().toISOString(),
+    version: "1.0",
+  };
 }
