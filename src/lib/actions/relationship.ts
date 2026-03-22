@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { relationships, familyMembers, familyAccess, families } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
-import { eq, and, or } from "drizzle-orm";
+import { eq, and, or, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 async function checkEditAccess(familyId: string) {
