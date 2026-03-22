@@ -14,6 +14,7 @@ export default async function DashboardPage() {
     return (
       <DashboardClient
         userName={DEMO_USER.name}
+        userRole="user"
         families={families}
       />
     );
