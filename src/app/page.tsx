@@ -14,7 +14,7 @@ export default async function Home() {
       {/* Navbar */}
       <header className="px-6 py-4 flex justify-between items-center border-b border-card-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="text-xl font-bold text-primary flex items-center gap-2">
-          <span>👨‍👩‍👧‍👦</span> Jejak Marga
+          <span>👨👩👧👦</span> Jejak Marga
         </div>
         <div className="flex items-center gap-4">
           <Link href="/about" className="hidden md:block text-sm font-semibold text-muted hover:text-primary transition-colors">
@@ -43,7 +43,7 @@ export default async function Home() {
       <main className="flex-1 flex flex-col items-center justify-center p-6 text-center pt-24 pb-16">
         <div className="max-w-3xl mx-auto space-y-8 animate-slide-up">
           <div className="inline-flex items-center justify-center p-4 rounded-full bg-primary/10 mb-2">
-            <span className="text-5xl">👨‍👩‍👧‍👦</span>
+            <span className="text-5xl">👨👩👧👦</span>
           </div>
           
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground">
@@ -101,7 +101,7 @@ export default async function Home() {
       <footer className="border-t border-card-border py-8 text-center text-muted mt-auto bg-card">
         <div className="flex flex-col items-center gap-4">
           <div className="flex items-center justify-center gap-2">
-            <span className="text-xl">👨‍👩‍👧‍👦</span> 
+            <span className="text-xl">👨👩👧👦</span> 
             <span className="font-bold text-foreground">Jejak Marga</span>
           </div>
           <div className="flex gap-6 text-sm">

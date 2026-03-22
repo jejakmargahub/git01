@@ -79,7 +79,7 @@ export default function DashboardClient({
               fontSize: "32px",
             }}
           >
-            👨‍👩‍👧‍👦
+            👨👩👧👦
           </div>
         </div>
       </div>
