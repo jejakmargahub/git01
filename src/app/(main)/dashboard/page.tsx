@@ -25,6 +25,7 @@ export default async function DashboardPage() {
   return (
     <DashboardClient
       userName={session?.user?.name || "Pengguna"}
+      userRole={(session?.user as any)?.role || "user"}
       families={families}
     />
   );

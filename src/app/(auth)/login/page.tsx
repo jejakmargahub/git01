@@ -60,7 +60,7 @@ function LoginContent() {
             marginBottom: "8px",
           }}
         >
-          🌳
+          👨‍👩‍👧‍👦
         </div>
         <h1
           style={{

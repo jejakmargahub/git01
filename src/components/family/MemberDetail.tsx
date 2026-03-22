@@ -15,6 +15,7 @@ interface MemberDetailProps {
   onDelete: () => void;
   onClose: () => void;
   onMemberClick: (memberId: string) => void;
+  isDeleting?: boolean;
 }
 
 export default function MemberDetail({
@@ -25,6 +26,7 @@ export default function MemberDetail({
   onDelete,
   onClose,
   onMemberClick,
+  isDeleting,
 }: MemberDetailProps) {
   const isDeceased = !!member.deathDate;
   const deceasedPrefix = member.gender === "M" ? "Alm." : "Almh.";
@@ -36,6 +38,7 @@ export default function MemberDetail({
   const parents = relationships.filter((r) => r.relationType === "child");
   const children = relationships.filter((r) => r.relationType === "parent");
   const spouses = relationships.filter((r) => r.relationType === "spouse");
+  const inLaws = relationships.filter((r) => r.relationType === "menantu");
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
@@ -57,178 +60,204 @@ export default function MemberDetail({
   return (
     <>
       <div className="bottom-sheet-overlay active" onClick={onClose} />
-      <div className="bottom-sheet active">
-        <div className="bottom-sheet-handle" />
+      <div 
+        className="bottom-sheet active" 
+        style={{ display: "flex", flexDirection: "column", padding: 0 }}
+        onClick={(e) => e.stopPropagation()} // Prevent clicking through to overlay
+      >
+        <div className="bottom-sheet-handle" style={{ marginTop: "16px" }} />
 
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-start",
-            gap: "16px",
-            marginBottom: "20px",
-          }}
-        >
-          {/* Avatar / Photo */}
-          {member.photoUrl ? (
-            <img
-              src={getOptimizedPhotoUrl(member.photoUrl, 120, 120) || ""}
-              alt={displayName}
-              style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                border: `2px solid ${genderColor}`,
-                flexShrink: 0,
-              }}
-            />
-          ) : (
-            <div
-              style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "50%",
-                background: isDeceased
-                  ? "var(--deceased-bg)"
-                  : member.gender === "M"
-                    ? "rgba(59, 130, 246, 0.1)"
-                    : "rgba(236, 72, 153, 0.1)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "28px",
-                flexShrink: 0,
-                border: `2px solid ${genderColor}`,
-              }}
-            >
-              {genderIcon}
-            </div>
-          )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h2
-              style={{
-                fontSize: "20px",
-                fontWeight: "700",
-                lineHeight: "1.3",
-              }}
-            >
-              {isDeceased ? `${deceasedPrefix} ` : ""}
-              {displayName}
-              {isDeceased ? " 🌼" : ""}
-            </h2>
-            {member.nickname && (
-              <p className="text-muted" style={{ fontSize: "14px" }}>
-                {member.fullName}
-              </p>
-            )}
-            {member.title && (
-              <p
+        <div className="bottom-sheet-content" style={{ padding: "0 20px 20px", overflowY: "auto", flex: 1 }}>
+          {/* Header */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "16px",
+              marginBottom: "20px",
+              paddingTop: "20px"
+            }}
+          >
+            {/* Avatar / Photo */}
+            {member.photoUrl ? (
+              <img
+                src={getOptimizedPhotoUrl(member.photoUrl, 120, 120) || ""}
+                alt={displayName}
                 style={{
-                  fontSize: "13px",
-                  color: "var(--muted)",
-                  marginTop: "2px",
-                  fontStyle: "italic",
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  border: `2px solid ${genderColor}`,
+                  flexShrink: 0,
+                }}
+              />
+            ) : (
+              <div
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "50%",
+                  background: isDeceased
+                    ? "var(--deceased-bg)"
+                    : member.gender === "M"
+                      ? "rgba(59, 130, 246, 0.1)"
+                      : "rgba(236, 72, 153, 0.1)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "28px",
+                  flexShrink: 0,
+                  border: `2px solid ${genderColor}`,
                 }}
               >
-                {member.title}
-              </p>
+                {genderIcon}
+              </div>
             )}
-          </div>
-        </div>
-
-        {/* Info Grid */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "12px",
-            marginBottom: "20px",
-          }}
-        >
-          <InfoRow label="Jenis Kelamin" value={member.gender === "M" ? "Laki-laki" : "Perempuan"} />
-          {member.mandarinName && <InfoRow label="Nama Mandarin" value={member.mandarinName} />}
-          <InfoRow label="Bulan & Tahun Lahir" value={formatDate(member.birthDate)} />
-          {isDeceased && (
-            <InfoRow label="Tanggal Meninggal" value={formatFullDate(member.deathDate)} />
-          )}
-          {member.phone && (
-            <InfoRow
-              label="Nomor HP"
-              value={
-                <a
-                  href={`tel:${member.phone}`}
-                  style={{ color: "var(--primary)", textDecoration: "none" }}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h2
+                style={{
+                  fontSize: "20px",
+                  fontWeight: "700",
+                  lineHeight: "1.3",
+                }}
+              >
+                {isDeceased ? `${deceasedPrefix} ` : ""}
+                {displayName}
+                {isDeceased ? " 🌼" : ""}
+              </h2>
+              {member.nickname && (
+                <p className="text-muted" style={{ fontSize: "14px" }}>
+                  {member.fullName}
+                </p>
+              )}
+              {member.title && (
+                <p
+                  style={{
+                    fontSize: "13px",
+                    color: "var(--muted)",
+                    marginTop: "2px",
+                    fontStyle: "italic",
+                  }}
                 >
-                  📱 {member.phone}
-                </a>
-              }
-            />
+                  {member.title}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Info Grid */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
+              marginBottom: "20px",
+            }}
+          >
+            <InfoRow label="Jenis Kelamin" value={member.gender === "M" ? "Laki-laki" : "Perempuan"} />
+            {member.mandarinName && <InfoRow label="Nama Mandarin" value={member.mandarinName} />}
+            <InfoRow label="Bulan & Tahun Lahir" value={formatDate(member.birthDate)} />
+            {isDeceased && (
+              <InfoRow label="Tanggal Meninggal" value={formatFullDate(member.deathDate)} />
+            )}
+            {member.phone && (
+              <InfoRow
+                label="Nomor HP"
+                value={
+                  <a
+                    href={`tel:${member.phone}`}
+                    style={{ color: "var(--primary)", textDecoration: "none" }}
+                  >
+                    📱 {member.phone}
+                  </a>
+                }
+              />
+            )}
+            {member.bio && <InfoRow label="Bio" value={member.bio} />}
+          </div>
+
+          {/* Relationships */}
+          {(parents.length > 0 || spouses.length > 0 || children.length > 0 || inLaws.length > 0) && (
+            <div style={{ marginBottom: "20px" }}>
+              <h3
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  marginBottom: "12px",
+                  color: "var(--foreground)",
+                }}
+              >
+                Hubungan Keluarga
+              </h3>
+
+              {parents.length > 0 && (
+                <RelationGroup
+                  label="Orang Tua"
+                  items={parents}
+                  onMemberClick={onMemberClick}
+                />
+              )}
+              {spouses.length > 0 && (
+                <RelationGroup
+                  label="Pasangan"
+                  items={spouses}
+                  onMemberClick={onMemberClick}
+                />
+              )}
+              {children.length > 0 && (
+                <RelationGroup
+                  label="Anak"
+                  items={children}
+                  onMemberClick={onMemberClick}
+                />
+              )}
+              {inLaws.length > 0 && (
+                <RelationGroup
+                  label="Menantu"
+                  items={inLaws}
+                  onMemberClick={onMemberClick}
+                />
+              )}
+            </div>
           )}
-          {member.bio && <InfoRow label="Bio" value={member.bio} />}
         </div>
 
-        {/* Relationships */}
-        {(parents.length > 0 || spouses.length > 0 || children.length > 0) && (
-          <div style={{ marginBottom: "20px" }}>
-            <h3
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                marginBottom: "12px",
-                color: "var(--foreground)",
-              }}
-            >
-              Hubungan Keluarga
-            </h3>
-
-            {parents.length > 0 && (
-              <RelationGroup
-                label="Orang Tua"
-                items={parents}
-                onMemberClick={onMemberClick}
-              />
-            )}
-            {spouses.length > 0 && (
-              <RelationGroup
-                label="Pasangan"
-                items={spouses}
-                onMemberClick={onMemberClick}
-              />
-            )}
-            {children.length > 0 && (
-              <RelationGroup
-                label="Anak"
-                items={children}
-                onMemberClick={onMemberClick}
-              />
-            )}
-          </div>
-        )}
-
-        {/* Action Buttons */}
+        {/* Sticky Action Buttons */}
         {canEdit && (
           <div
             style={{
               display: "flex",
               gap: "12px",
-              paddingTop: "16px",
+              padding: "16px 20px calc(16px + env(safe-area-inset-bottom, 0px))",
+              background: "var(--card)",
               borderTop: "1px solid var(--card-border)",
+              zIndex: 10
             }}
           >
             <button
               className="btn btn-secondary"
               onClick={onEdit}
+              disabled={isDeleting}
               style={{ flex: 1 }}
             >
               ✏️ Edit
             </button>
             <button
               className="btn btn-danger"
-              onClick={onDelete}
-              style={{ flex: 1 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                console.log("Hapus button clicked inside MemberDetail sticky footer");
+                onDelete();
+              }}
+              disabled={isDeleting}
+              style={{ 
+                flex: 1,
+                opacity: isDeleting ? 0.7 : 1,
+                cursor: isDeleting ? "not-allowed" : "pointer"
+              }}
             >
-              🗑️ Hapus
+              {isDeleting ? "⏳ Menghapus..." : "🗑️ Hapus"}
             </button>
           </div>
         )}

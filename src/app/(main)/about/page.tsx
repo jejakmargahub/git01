@@ -8,7 +8,7 @@ export default function AboutPage() {
     {
       title: "Melestarikan Memori Keluarga",
       description: "Menjadi arsip digital abadi yang menyimpan nama, wajah, dan cerita agar tak ada lagi kisah yang tenggelam oleh waktu.",
-      icon: "🌳",
+      icon: "👨‍👩‍👧‍👦",
     },
     {
       title: "Memperkuat Ikatan Lintas Generasi",

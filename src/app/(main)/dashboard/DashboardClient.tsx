@@ -20,6 +20,7 @@ interface Family {
 
 interface DashboardClientProps {
   userName: string;
+  userRole: string;
   families: {
     family: Family;
     role: string;
@@ -29,6 +30,7 @@ interface DashboardClientProps {
 
 export default function DashboardClient({
   userName,
+  userRole,
   families,
 }: DashboardClientProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -77,7 +79,7 @@ export default function DashboardClient({
               fontSize: "32px",
             }}
           >
-            🌳
+            👨‍👩‍👧‍👦
           </div>
         </div>
       </div>
@@ -160,6 +162,38 @@ export default function DashboardClient({
           </form>
           {joinError && <p style={{ color: "var(--danger)", fontSize: "12px", marginTop: "8px", fontWeight: "500" }}>{joinError}</p>}
         </div>
+
+        {/* Super Admin Panel Access */}
+        {userRole === "superadmin" && (
+          <div 
+            className="card" 
+            style={{ 
+              marginTop: "24px", 
+              padding: "16px", 
+              background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)", 
+              color: "white",
+              border: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between"
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <span style={{ fontSize: "24px" }}>🛠️</span>
+              <div>
+                <p style={{ margin: 0, fontSize: "14px", fontWeight: "700" }}>Panel Admin</p>
+                <p style={{ margin: 0, fontSize: "12px", opacity: 0.7 }}>Kelola seluruh user & platform</p>
+              </div>
+            </div>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => router.push("/admin/users")}
+              style={{ fontSize: "13px", padding: "8px 16px" }}
+            >
+              Buka Panel
+            </button>
+          </div>
+        )}
       </div>
 
       {/* FAB */}

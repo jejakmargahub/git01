@@ -14,23 +14,28 @@ export default async function Home() {
       {/* Navbar */}
       <header className="px-6 py-4 flex justify-between items-center border-b border-card-border bg-card/80 backdrop-blur-md sticky top-0 z-50">
         <div className="text-xl font-bold text-primary flex items-center gap-2">
-          <span>🌳</span> Jejak Marga
+          <span>👨‍👩‍👧‍👦</span> Jejak Marga
         </div>
-        <div className="flex items-center gap-2">
-          {session ? (
-            <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 rounded-full shadow-md">
-              Ke Dashboard
-            </Link>
-          ) : (
-            <>
-              <Link href="/register" className="hidden sm:block text-sm font-semibold text-primary hover:text-primary/80 transition-colors mr-2">
-                Daftar
+        <div className="flex items-center gap-4">
+          <Link href="/about" className="hidden md:block text-sm font-semibold text-muted hover:text-primary transition-colors">
+            Tentang Kami
+          </Link>
+          <div className="flex items-center gap-2">
+            {session ? (
+              <Link href="/dashboard" className="btn btn-primary text-sm px-4 py-2 rounded-full shadow-md">
+                Ke Dashboard
               </Link>
-              <Link href="/login" className="btn btn-primary text-sm px-5 py-2 rounded-full shadow-md border-2 border-primary">
-                Masuk
-              </Link>
-            </>
-          )}
+            ) : (
+              <>
+                <Link href="/register" className="hidden sm:block text-sm font-semibold text-primary hover:text-primary/80 transition-colors mr-2">
+                  Daftar
+                </Link>
+                <Link href="/login" className="btn btn-primary text-sm px-5 py-2 rounded-full shadow-md border-2 border-primary">
+                  Masuk
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -94,11 +99,18 @@ export default async function Home() {
 
       {/* Footer */}
       <footer className="border-t border-card-border py-8 text-center text-muted mt-auto bg-card">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <span className="text-xl">🌳</span> 
-          <span className="font-bold text-foreground">Jejak Marga</span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center gap-2">
+            <span className="text-xl">👨‍👩‍👧‍👦</span> 
+            <span className="font-bold text-foreground">Jejak Marga</span>
+          </div>
+          <div className="flex gap-6 text-sm">
+            <Link href="/about" className="hover:text-primary transition-colors">Tentang Kami</Link>
+            <Link href="/login" className="hover:text-primary transition-colors">Masuk</Link>
+            <Link href="/register" className="hover:text-primary transition-colors">Daftar</Link>
+          </div>
         </div>
-        <p className="text-sm">© {new Date().getFullYear()} Hak Cipta Dilindungi.</p>
+        <p className="text-sm mt-6">© {new Date().getFullYear()} Hak Cipta Dilindungi.</p>
         <p className="text-xs mt-1 text-primary">jejakmarga.my.id</p>
       </footer>
     </div>

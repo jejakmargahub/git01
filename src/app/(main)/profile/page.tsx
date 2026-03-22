@@ -107,7 +107,7 @@ export default function ProfilePage() {
             padding: "16px"
           }}
         >
-          <div style={{ fontSize: "24px" }}>🌳</div>
+          <div style={{ fontSize: "24px" }}>👨‍👩‍👧‍👦</div>
           <div>
             <p style={{ margin: 0, fontSize: "14px", fontWeight: "700", color: "#065f46" }}>
               Kapasitas Anggota

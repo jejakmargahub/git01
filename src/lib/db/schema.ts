@@ -18,6 +18,7 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 255 }), // nullable for OAuth users
   fullName: varchar("full_name", { length: 255 }).notNull(),
   role: varchar("role", { length: 20 }).default("user").notNull(), // 'user', 'superadmin'
+  status: varchar("status", { length: 20 }).default("active").notNull(), // 'active', 'disabled'
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

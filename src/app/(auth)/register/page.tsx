@@ -69,7 +69,7 @@ export default function RegisterPage() {
     <div className="card" style={{ padding: "32px 24px" }}>
       {/* Header */}
       <div style={{ textAlign: "center", marginBottom: "28px" }}>
-        <div style={{ fontSize: "40px", marginBottom: "8px" }}>🌳</div>
+        <div style={{ fontSize: "40px", marginBottom: "8px" }}>👨‍👩‍👧‍👦</div>
         <h1
           style={{
             fontSize: "24px",

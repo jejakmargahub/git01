@@ -42,12 +42,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
+        if (user.status === "disabled") {
+          throw new Error("Akun Anda telah dinonaktifkan. Silakan hubungi dukungan.");
+        }
+
         return {
           id: user.id,
           email: user.email,
           name: user.fullName,
           role: user.role,
           phoneNumber: user.phoneNumber,
+          status: user.status,
         };
       },
     }),
@@ -69,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.role = (user as any).role;
         token.phoneNumber = (user as any).phoneNumber;
+        token.status = (user as any).status;
       }
       return token;
     },
@@ -77,6 +83,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.id as string;
         (session.user as any).role = token.role as string;
         (session.user as any).phoneNumber = token.phoneNumber as string;
+        (session.user as any).status = token.status as string;
       }
       return session;
     },

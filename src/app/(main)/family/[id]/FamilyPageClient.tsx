@@ -40,6 +40,7 @@ export default function FamilyPageClient({
   >([]);
   const [showRelationshipDialog, setShowRelationshipDialog] = useState(false);
   const [relationshipMember, setRelationshipMember] = useState<FamilyMember | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showInviteDialog, setShowInviteDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [quickAddContext, setQuickAddContext] = useState<{
@@ -155,11 +156,20 @@ export default function FamilyPageClient({
 
   const handleDeleteMember = async () => {
     if (!selectedMember) return;
-    if (!confirm("Yakin ingin menghapus anggota ini?")) return;
+    if (!confirm(`Yakin ingin menghapus ${selectedMember.fullName}?`)) return;
 
-    await deleteMember(family.id, selectedMember.id);
-    setSelectedMember(null);
-    router.refresh();
+    try {
+      setIsDeleting(true);
+      await deleteMember(family.id, selectedMember.id);
+      setSelectedMember(null);
+      router.refresh();
+      alert("Anggota berhasil dihapus");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Gagal menghapus anggota: " + (error instanceof Error ? error.message : "Kesalahan tidak diketahui"));
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   const handleAddRelationship = async (
@@ -316,7 +326,7 @@ export default function FamilyPageClient({
                 transition: "all 0.2s ease",
               }}
             >
-              🌳 Pohon
+              👨‍👩‍👧‍👦 Pohon
             </button>
             <button
               onClick={() => setViewMode("list")}
@@ -513,6 +523,7 @@ export default function FamilyPageClient({
           onEdit={handleEditMember}
           onDelete={handleDeleteMember}
           onClose={() => setSelectedMember(null)}
+          isDeleting={isDeleting}
           onMemberClick={(memberId) => {
             setSelectedMember(null);
             setTimeout(() => handleNodeClick(memberId), 300);

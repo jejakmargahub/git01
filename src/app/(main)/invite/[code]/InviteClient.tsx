@@ -53,7 +53,7 @@ export default function InviteClient({
             boxShadow: "var(--shadow-md)"
           }}
         >
-          🌳
+          👨‍👩‍👧‍👦
         </div>
         
         <h1 style={{ fontSize: "24px", fontWeight: "700", marginBottom: "8px" }}>Undangan Keluarga</h1>
