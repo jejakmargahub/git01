@@ -28,7 +28,7 @@ function LoginContent() {
 
     try {
       const result = await signIn("credentials", {
-        identifier,
+        identifier: identifier.toLowerCase(),
         password,
         redirect: false,
       });
@@ -213,10 +213,10 @@ function LoginContent() {
 
       {/* REGISTER BUTTON */}
       <div style={{ marginTop: "16px", marginBottom: "8px" }}>
-        <Link 
-          href="/register" 
+        <Link
+          href="/register"
           className="btn btn-full"
-          style={{ 
+          style={{
             background: "transparent",
             border: "2px solid var(--primary)",
             color: "var(--primary)",

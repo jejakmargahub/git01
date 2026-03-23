@@ -19,12 +19,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const identifier = credentials.identifier as string;
+        const identifier = (credentials.identifier as string).toLowerCase();
         const password = credentials.password as string;
 
         const isPhone = /^\d+$/.test(identifier);
-        const condition = isPhone 
-          ? eq(users.phoneNumber, identifier) 
+        const condition = isPhone
+          ? eq(users.phoneNumber, identifier)
           : eq(users.email, identifier);
 
         const [user] = await db
@@ -58,11 +58,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     ...(process.env.GOOGLE_CLIENT_ID
       ? [
-          Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-          }),
-        ]
+        Google({
+          clientId: process.env.GOOGLE_CLIENT_ID,
+          clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
+      ]
       : []),
   ],
   pages: {
@@ -90,12 +90,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         // Check if user exists, if not create one
-        const email = user.email!;
+        const email = user.email!.toLowerCase();
         const [existingUser] = await db
           .select()
           .from(users)
           .where(eq(users.email, email))
           .limit(1);
+
+        if (existingUser && existingUser.status === "disabled") {
+          return false; // Reject sign in for disabled users
+        }
 
         if (!existingUser) {
           await db.insert(users).values({
@@ -114,6 +118,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         if (dbUser) {
           user.id = dbUser.id;
+          (user as any).status = dbUser.status;
+          (user as any).role = dbUser.role;
         }
       }
       return true;

@@ -39,8 +39,8 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const payload = mode === "email" 
-        ? { email, password, fullName }
+      const payload = mode === "email"
+        ? { email: email.toLowerCase(), password, fullName }
         : { phoneNumber, password, fullName };
 
       const res = await fetch("/api/auth/register", {
