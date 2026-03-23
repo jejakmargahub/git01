@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { db } from "@/lib/db";
-import { users } from "@/lib/db/schema";
+import { users, verificationTokens } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
@@ -13,6 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         identifier: { label: "Email/HP", type: "text" },
         password: { label: "Password", type: "password" },
+        loginType: { label: "Type", type: "text" }, // "password" or "otp"
       },
       async authorize(credentials) {
         if (!credentials?.identifier || !credentials?.password) {
@@ -21,8 +22,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const identifier = (credentials.identifier as string).toLowerCase();
         const password = credentials.password as string;
+        const loginType = credentials.loginType as string || "password";
 
         const isPhone = /^\d+$/.test(identifier);
+
+        if (loginType === "otp" && !isPhone) {
+          // Handle OTP Verification for Email
+          const [tokenData] = await db
+            .select()
+            .from(verificationTokens)
+            .where(eq(verificationTokens.identifier, identifier))
+            .limit(1);
+
+          if (!tokenData || tokenData.token !== password || tokenData.expires < new Date()) {
+            return null; // Invalid or expired OTP
+          }
+
+          // Delete token after successful use
+          await db.delete(verificationTokens).where(eq(verificationTokens.identifier, identifier));
+        }
+
         const condition = isPhone
           ? eq(users.phoneNumber, identifier)
           : eq(users.email, identifier);
@@ -33,13 +52,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           .where(condition)
           .limit(1);
 
-        if (!user || !user.password) {
+        if (!user) {
           return null;
         }
 
-        const isPasswordValid = await bcrypt.compare(password, user.password);
-        if (!isPasswordValid) {
-          return null;
+        if (loginType === "password") {
+          if (!user.password) return null;
+          const isPasswordValid = await bcrypt.compare(password, user.password);
+          if (!isPasswordValid) return null;
         }
 
         if (user.status === "disabled") {

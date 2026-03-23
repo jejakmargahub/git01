@@ -20,6 +20,19 @@ function LoginContent() {
     }
   }, [searchParams]);
 
+  const [isOtpMode, setIsOtpMode] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [countdown, setCountdown] = useState(0);
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (countdown > 0) {
+      timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [countdown]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -29,18 +42,51 @@ function LoginContent() {
     try {
       const result = await signIn("credentials", {
         identifier: identifier.toLowerCase(),
-        password,
+        password: isOtpMode ? otpCode : password,
+        loginType: isOtpMode ? "otp" : "password",
         redirect: false,
       });
 
       if (result?.error) {
-        setError("Email atau password salah");
+        setError(isOtpMode ? "Kode verifikasi salah atau kedaluwarsa" : "Email atau password salah");
       } else {
         router.push("/dashboard");
         router.refresh();
       }
     } catch {
       setError("Terjadi kesalahan. Coba lagi.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!identifier || !identifier.includes("@")) {
+      setError("Masukkan alamat email yang valid untuk mengirim kode");
+      return;
+    }
+
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/otp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: identifier.toLowerCase() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Gagal mengirim kode");
+      } else {
+        setOtpSent(true);
+        setCountdown(60);
+        setSuccess("📩 Kode verifikasi telah dikirim ke email Anda.");
+      }
+    } catch {
+      setError("Terjadi kesalahan sistem. Coba lagi.");
     } finally {
       setLoading(false);
     }
@@ -76,6 +122,46 @@ function LoginContent() {
         </p>
       </div>
 
+      {/* Mode Switcher */}
+      <div style={{ display: "flex", gap: "8px", marginBottom: "24px", background: "var(--background)", padding: "4px", borderRadius: "12px" }}>
+        <button
+          onClick={() => { setIsOtpMode(false); setError(""); setSuccess(""); }}
+          style={{
+            flex: 1,
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "none",
+            background: !isOtpMode ? "var(--card)" : "transparent",
+            color: !isOtpMode ? "var(--foreground)" : "var(--muted)",
+            fontWeight: !isOtpMode ? "600" : "400",
+            boxShadow: !isOtpMode ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            fontSize: "13px",
+          }}
+        >
+          Password / PIN
+        </button>
+        <button
+          onClick={() => { setIsOtpMode(true); setError(""); setSuccess(""); }}
+          style={{
+            flex: 1,
+            padding: "8px 12px",
+            borderRadius: "8px",
+            border: "none",
+            background: isOtpMode ? "var(--card)" : "transparent",
+            color: isOtpMode ? "var(--foreground)" : "var(--muted)",
+            fontWeight: isOtpMode ? "600" : "400",
+            boxShadow: isOtpMode ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+            cursor: "pointer",
+            transition: "all 0.2s",
+            fontSize: "13px",
+          }}
+        >
+          Kode Email (OTP)
+        </button>
+      </div>
+
       {/* Success Message */}
       {success && (
         <div
@@ -85,7 +171,7 @@ function LoginContent() {
             color: "#16a34a",
             padding: "12px 16px",
             borderRadius: "var(--radius-sm)",
-            fontSize: "14px",
+            fontSize: "13px",
             marginBottom: "20px",
             textAlign: "center",
             border: "1px solid rgba(34, 197, 94, 0.2)",
@@ -104,7 +190,7 @@ function LoginContent() {
             color: "var(--danger)",
             padding: "12px 16px",
             borderRadius: "var(--radius-sm)",
-            fontSize: "14px",
+            fontSize: "13px",
             marginBottom: "20px",
             textAlign: "center",
           }}
@@ -117,52 +203,110 @@ function LoginContent() {
       <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         <div className="input-group">
           <label className="input-label" htmlFor="identifier">
-            Email atau Nomor HP
+            {isOtpMode ? "Alamat Email" : "Email atau Nomor HP"}
           </label>
           <input
             id="identifier"
-            type="text"
+            type={isOtpMode ? "email" : "text"}
             className="input-field"
-            placeholder="Email Anda / No. Handphone"
+            placeholder={isOtpMode ? "nama@email.com" : "Email / Nomor HP"}
             value={identifier}
             onChange={(e) => setIdentifier(e.target.value)}
             required
             autoComplete="username"
+            disabled={otpSent && isOtpMode}
           />
         </div>
 
-        <div className="input-group">
-          <label className="input-label" htmlFor="password">
-            Password / PIN
-          </label>
-          <input
-            id="password"
-            type="password"
-            className="input-field"
-            placeholder="Masukkan password atau PIN"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            autoComplete="current-password"
-            minLength={4}
-          />
-        </div>
+        {!isOtpMode ? (
+          <div className="input-group">
+            <label className="input-label" htmlFor="password">
+              Password / PIN
+            </label>
+            <input
+              id="password"
+              type="password"
+              className="input-field"
+              placeholder="Masukkan password atau PIN"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              minLength={4}
+            />
+          </div>
+        ) : otpSent ? (
+          <div className="input-group">
+            <label className="input-label" htmlFor="otpCode">
+              Masukkan Kode 4-Digit
+            </label>
+            <div style={{ position: "relative" }}>
+              <input
+                id="otpCode"
+                type="text"
+                inputMode="numeric"
+                className="input-field"
+                placeholder="0000"
+                value={otpCode}
+                onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                required
+                maxLength={4}
+                style={{
+                  letterSpacing: "8px",
+                  textAlign: "center",
+                  fontSize: "20px",
+                  fontWeight: "700"
+                }}
+              />
+            </div>
+            <div style={{ textAlign: "right", marginTop: "8px" }}>
+              <button
+                type="button"
+                className="text-link"
+                disabled={countdown > 0 || loading}
+                onClick={handleSendOtp}
+                style={{ fontSize: "13px", border: "none", background: "none", color: countdown > 0 ? "var(--muted)" : "var(--primary)", cursor: countdown > 0 ? "default" : "pointer" }}
+              >
+                {countdown > 0 ? `Kirim ulang dalam ${countdown}s` : "Kirim ulang kode"}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
-        <button
-          type="submit"
-          className="btn btn-primary btn-full"
-          disabled={loading}
-          style={{ marginTop: "8px" }}
-        >
-          {loading ? (
-            <>
-              <span className="spinner spinner-sm" style={{ borderTopColor: "white" }} />
-              Masuk...
-            </>
-          ) : (
-            "Masuk"
-          )}
-        </button>
+        {!isOtpMode || otpSent ? (
+          <button
+            type="submit"
+            className="btn btn-primary btn-full"
+            disabled={loading}
+            style={{ marginTop: "8px" }}
+          >
+            {loading ? (
+              <>
+                <span className="spinner spinner-sm" style={{ borderTopColor: "white" }} />
+                Memproses...
+              </>
+            ) : (
+              "Masuk"
+            )}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={handleSendOtp}
+            className="btn btn-primary btn-full"
+            disabled={loading}
+            style={{ marginTop: "8px" }}
+          >
+            {loading ? (
+              <>
+                <span className="spinner spinner-sm" style={{ borderTopColor: "white" }} />
+                Mengaktifkan...
+              </>
+            ) : (
+              "Kirim Kode Verifikasi"
+            )}
+          </button>
+        )}
       </form>
 
       {/* Divider */}

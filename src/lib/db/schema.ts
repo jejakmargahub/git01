@@ -22,6 +22,13 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// ==================== VERIFICATION TOKENS (OTP) ====================
+export const verificationTokens = pgTable("verification_tokens", {
+  identifier: varchar("identifier", { length: 255 }).notNull(), // email or phone
+  token: varchar("token", { length: 255 }).notNull(),
+  expires: timestamp("expires").notNull(),
+});
+
 export const usersRelations = relations(users, ({ many }) => ({
   familyAccess: many(familyAccess),
   createdFamilies: many(families),
