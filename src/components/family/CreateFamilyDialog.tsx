@@ -38,15 +38,16 @@ export default function CreateFamilyDialog({
       <div className="bottom-sheet-overlay active" onClick={onClose} />
       <div className="bottom-sheet active">
         <div className="bottom-sheet-handle" />
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: "700",
-            marginBottom: "20px",
-          }}
-        >
-          Buat Bagan Keluarga Baru
-        </h2>
+        <div className="bottom-sheet-content">
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: "700",
+              marginBottom: "20px",
+            }}
+          >
+            Buat Bagan Keluarga Baru
+          </h2>
 
         {error && (
           <div
@@ -123,6 +124,7 @@ export default function CreateFamilyDialog({
             </button>
           </div>
         </form>
+        </div>
       </div>
     </>
   );

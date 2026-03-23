@@ -178,20 +178,21 @@ export default function MemberForm({
   return (
     <>
       <div className="bottom-sheet-overlay active" onClick={onClose} />
-      <div className="bottom-sheet active" style={{ maxHeight: "90vh" }}>
+      <div className="bottom-sheet active">
         <ImageKitProvider
           urlEndpoint={process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT}
         >
         <div className="bottom-sheet-handle" />
-        <h2
-          style={{
-            fontSize: "20px",
-            fontWeight: "700",
-            marginBottom: "20px",
-          }}
-        >
-          {isEditing ? "Edit Anggota" : "Tambah Anggota Baru"}
-        </h2>
+        <div className="bottom-sheet-content">
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: "700",
+              marginBottom: "20px",
+            }}
+          >
+            {isEditing ? "Edit Anggota" : "Tambah Anggota Baru"}
+          </h2>
 
         {error && (
           <div
@@ -532,6 +533,7 @@ export default function MemberForm({
             </button>
           </div>
         </form>
+        </div>
         </ImageKitProvider>
       </div>
     </>
