@@ -198,9 +198,31 @@ export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
   }),
 }));
 
+// ==================== USER SESSIONS (Analytics & Security) ====================
+export const userSessions = pgTable("user_sessions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  startTime: timestamp("start_time").defaultNow().notNull(),
+  lastPing: timestamp("last_ping").defaultNow().notNull(),
+  endTime: timestamp("end_time"),
+  duration: text("duration").default("0").notNull(), // stored as string to avoid overflow, or use bigint/int if seconds
+  ipAddress: varchar("ip_address", { length: 50 }),
+  location: varchar("location", { length: 255 }),
+  userAgent: text("user_agent"),
+});
+
+export const userSessionsRelations = relations(userSessions, ({ one }) => ({
+  user: one(users, {
+    fields: [userSessions.userId],
+    references: [users.id],
+  }),
+}));
+
 // ==================== TYPE EXPORTS ====================
 export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type Family = typeof families.$inferSelect;
 export type NewFamily = typeof families.$inferInsert;
 export type FamilyMember = typeof familyMembers.$inferSelect;
@@ -211,3 +233,5 @@ export type FamilyAccess = typeof familyAccess.$inferSelect;
 export type NewFamilyAccess = typeof familyAccess.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+export type UserSession = typeof userSessions.$inferSelect;
+export type NewUserSession = typeof userSessions.$inferInsert;

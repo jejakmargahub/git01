@@ -51,9 +51,11 @@ export default function UserManagement({ initialUsers }: UserManagementProps) {
   };
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-6 animate-fade-in">
+      {/* Cards & Controls Row */}
+      <div className="flex flex-col gap-6">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="card border-l-4 border-l-primary p-4 flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total User</p>
@@ -179,5 +181,6 @@ export default function UserManagement({ initialUsers }: UserManagementProps) {
         )}
       </div>
     </div>
+  </div>
   );
 }
