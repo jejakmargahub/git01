@@ -138,7 +138,7 @@ export default function RegisterPage() {
             fontSize: "14px",
           }}
         >
-          Nomer HP (Lansia)
+          Nomor HP
         </button>
       </div>
 
