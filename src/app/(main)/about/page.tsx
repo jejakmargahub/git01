@@ -32,11 +32,6 @@ export default function AboutPage() {
     },
   ];
 
-  const culturalTerms = [
-    { term: "Kakek / Nenek", variants: ["Eyang", "Opa/Oma", "Akung/Uti", "Abah/Ambu", "Opung", "Datuk"] },
-    { term: "Ayah / Ibu", variants: ["Bapak/Emak", "Papa/Mama", "Romo/Simbah", "Papi/Mami", "Ama/Ina"] },
-    { term: "Paman / Bibi", variants: ["Pakde/Bude", "Om/Tante", "Amang/Inang", "Tulang/Bou", "Cing/Nyak"] },
-  ];
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -63,7 +58,7 @@ export default function AboutPage() {
             transition={{ delay: 0.2 }}
             className="text-lg md:text-xl text-slate-300 mb-10 max-w-2xl mx-auto"
           >
-            Menelusuri jejak, Merajut Nusantara. Sebuah rumah digital bagi setiap keluarga Indonesia untuk merawat cerita leluhur.
+            Menelusuri jejak keluarga di Nusantara Indonesia. Sebuah rumah digital bagi setiap keluarga Indonesia untuk merawat cerita leluhur dan orang orang terkasih.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -90,11 +85,12 @@ export default function AboutPage() {
           >
             <span className="text-5xl text-[var(--primary)] opacity-20 font-serif mb-4 block">"</span>
             <h2 className="text-3xl md:text-4xl font-serif italic text-slate-800 dark:text-slate-100 leading-relaxed mb-6">
-              Menjadi jembatan ingatan nusantara yang menghubungkan masa lalu, masa kini, dan masa depan—sebuah rumah digital bagi setiap keluarga Indonesia untuk menyimpan, merawat, dan mewariskan cerita leluhur.
+              "Menjadi jembatan ingatan yang menghubungkan masa lalu, masa kini, dan masa depan—sebuah rumah digital bagi setiap keluarga Indonesia untuk menyimpan, merawat, dan mewariskan cerita dan jejak keluarga yang kita kasihi."
             </h2>
             <div className="w-24 h-1 bg-[var(--primary)] mx-auto mb-6" />
             <p className="text-slate-600 dark:text-slate-400 text-lg">
-              Dari silsilah lahir jati diri. Dari jati diri lahir rasa hormat. Dan dari rasa hormat lahir generasi yang kokoh berakar.
+              "Dari jejak keluarga inilah lahir jati diri.<br />
+              Dari jati diri lahir kenangan, cinta kasih dan rasa hormat. Dan dari rasa hormat lahir pribadi generasi yang kokoh berakar."
             </p>
           </motion.div>
         </div>
@@ -131,59 +127,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Cultural Terms Section */}
-      <section className="py-24 bg-white dark:bg-[#1a1a1a] overflow-hidden">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col lg:flex-row items-center gap-16">
-            <div className="lg:w-1/2">
-              <h2 className="text-3xl font-bold mb-6 italic">Merayakan Keberagaman <br />Bahasa & Budaya</h2>
-              <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed mb-8">
-                Setiap suku punya panggilannya sendiri untuk "kakek", "nenek", "buyut". Kami menyediakan ruang bagi kekayaan itu—dalam bahasa Jawa, Batak, Sansekerta, Belanda, Jepang, Inggris, dan bahasa-bahasa lain yang mewarnai perjalanan bangsa.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                {["Jawa", "Batak", "Melayu", "Bugis", "Minang", "Sunda", "Siauw"].map(suku => (
-                  <span key={suku} className="px-4 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-sm font-medium">#{suku}</span>
-                ))}
-              </div>
-            </div>
-            
-            <div className="lg:w-1/2 grid grid-cols-1 gap-4">
-              {culturalTerms.map((item, idx) => (
-                <motion.div 
-                  key={idx}
-                  whileHover={{ x: 10 }}
-                  className="p-6 bg-[var(--primary)]/5 rounded-2xl border border-[var(--primary)]/10"
-                >
-                  <h4 className="font-bold text-[var(--primary)] mb-3">{item.term}</h4>
-                  <div className="flex flex-wrap gap-2">
-                    {item.variants.map(v => (
-                      <span key={v} className="px-3 py-1 bg-white dark:bg-slate-900 shadow-sm rounded-lg text-sm">{v}</span>
-                    ))}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Nusantara Quote */}
-      <section className="py-24 bg-[#0f172a] text-white text-center">
-        <div className="container mx-auto px-6 max-w-4xl">
-          <h2 className="text-3xl md:text-4xl font-bold mb-8 italic">
-            "Satu pohon keluarga mungkin menceritakan satu garis darah. Namun ribuan pohon keluarga yang terhubung akan membentuk kanopi raksasa—sejarah Indonesia yang hidup."
-          </h2>
-          <p className="text-slate-400 text-lg mb-12">
-            Di balik setiap nama ada cerita. Di balik setiap cerita ada Indonesia.
-          </p>
-          <Link 
-            href="/register" 
-            className="px-8 py-4 border-2 border-[var(--primary)] text-[var(--primary)] hover:bg-[var(--primary)] hover:text-white font-bold rounded-full transition-all"
-          >
-            Gabung Sekarang
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }

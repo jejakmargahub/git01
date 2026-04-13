@@ -1,4 +1,4 @@
-# Dokumentasi API & Konfigurasi Sistem – Jejak Marga
+﻿# Dokumentasi API & Konfigurasi Sistem â€“ Jejak Marga
 
 Dokumen ini merangkum semua layanan pihak ketiga (API) dan variabel lingkungan (Environment Variables) yang digunakan dalam aplikasi Jejak Marga.
 
@@ -40,6 +40,7 @@ Layanan untuk menyimpan dan mengoptimalkan foto profil anggota keluarga.
   - `NEXT_PUBLIC_IMAGEKIT_PUBLIC_KEY`: Kunci publik untuk client.
   - `IMAGEKIT_PRIVATE_KEY`: Kunci rahasia server (untuk autentikasi upload).
   - `NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT`: URL dasar gambar (contoh: `https://ik.imagekit.io/jejakmarga`).
+- **Organisasi Media**: Foto anggota disimpan dalam folder `/members/${familyId}/` untuk kerapihan data per bagan keluarga.
 
 ---
 
