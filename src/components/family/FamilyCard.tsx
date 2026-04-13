@@ -289,6 +289,7 @@ export default function FamilyCard({
           currentInviteCode={family.inviteCode || ""}
           isPublicViewEnabled={family.isPublicViewEnabled}
           publicViewSlug={family.publicViewSlug}
+          settings={{}}
           onClose={() => setShowSettings(false)}
           onUpdate={() => {
             router.refresh();

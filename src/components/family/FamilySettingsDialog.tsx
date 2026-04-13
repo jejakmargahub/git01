@@ -312,9 +312,6 @@ export default function FamilySettingsDialog({
             </div>
           </section>
 
-            </div>
-          </section>
-
           {/* Section: Storage & Media */}
           <section>
             <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>

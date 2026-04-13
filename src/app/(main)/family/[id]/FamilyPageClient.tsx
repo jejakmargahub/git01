@@ -523,6 +523,8 @@ export default function FamilyPageClient({
                   fullName: editingMember.fullName,
                   nickname: editingMember.nickname,
                   mandarinName: editingMember.mandarinName,
+                  ethnicityId: editingMember.ethnicityId,
+                  regionalName: editingMember.regionalName,
                   photoUrl: editingMember.photoUrl,
                   gender: editingMember.gender,
                   birthDate: editingMember.birthDate,

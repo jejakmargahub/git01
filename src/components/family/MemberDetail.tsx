@@ -2,7 +2,7 @@
 
 import type { FamilyMember } from "@/lib/db/schema";
 import { getOptimizedPhotoUrl } from "@/lib/imagekit";
-import { getEthnicityById } from "@/lib/constants/ethnicities";
+import { getEthnicityById, getEthnicityByName } from "@/lib/constants/ethnicities";
 
 interface MemberDetailProps {
   member: FamilyMember;

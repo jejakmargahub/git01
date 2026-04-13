@@ -30,6 +30,7 @@ export default async function FamilyPage({
         members={members}
         relationships={rels}
         userRole={access?.role || "viewer"}
+        ethnicities={[]}
       />
     );
   }

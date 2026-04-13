@@ -24,6 +24,7 @@ export const DEMO_FAMILIES: Family[] = [
     isPublicViewEnabled: false,
     publicViewSlug: null,
     inviteCode: "JEJAKMARGA-1122",
+    settings: {},
     createdAt: new Date("2024-01-01"),
   },
   {
@@ -35,6 +36,7 @@ export const DEMO_FAMILIES: Family[] = [
     isPublicViewEnabled: false,
     publicViewSlug: null,
     inviteCode: "JEJAKMARGA-3344",
+    settings: {},
     createdAt: new Date("2024-02-01"),
   },
   {
@@ -46,6 +48,7 @@ export const DEMO_FAMILIES: Family[] = [
     isPublicViewEnabled: false,
     publicViewSlug: null,
     inviteCode: "JEJAKMARGA-5566",
+    settings: {},
     createdAt: new Date("2024-03-01"),
   },
 ];
@@ -66,6 +69,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Pendiri keluarga, berasal dari Fujian",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -81,6 +86,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Generasi 2 (Kakek/Nenek)
@@ -97,6 +104,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081234567890",
     bio: "Pensiunan guru",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -112,6 +121,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081234567891",
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -127,6 +138,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081234567892",
     bio: "Pengusaha",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Generasi 3 (Orang Tua)
@@ -143,6 +156,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081298765432",
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -158,6 +173,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081298765433",
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -173,6 +190,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081298765434",
     bio: "Anak kedua Om Hwa",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Generasi 4 (Anak)
@@ -189,6 +208,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081355551234",
     bio: "Developer",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -204,6 +225,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Mahasiswi",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -219,6 +242,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Anak tambahan Papa & Mama
@@ -235,6 +260,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Pelajar SMA",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -250,6 +277,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Pelajar SMP",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Istri Om Hwa
@@ -266,6 +295,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081234567893",
     bio: null,
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Anak tambahan Om Hwa & Ci Linda
@@ -282,6 +313,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081298765435",
     bio: "Dokter",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -297,6 +330,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: "081298765436",
     bio: "Insinyur",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // --- TES: Pasangan Anak-Anak ---
@@ -313,6 +348,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Istri Chris",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   {
@@ -328,6 +365,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Istri Ko Jun",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
   // Generasi 5 (Cicit)
@@ -344,6 +383,8 @@ export const DEMO_MEMBERS: FamilyMember[] = [
     phone: null,
     bio: "Anak Ko Jun & Stella",
     photoUrl: null,
+    ethnicityId: null,
+    regionalName: null,
     createdAt: new Date(),
   },
 ];

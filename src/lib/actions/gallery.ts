@@ -111,5 +111,5 @@ export async function getMemberPhotos(memberId: string) {
     .where(eq(photoTags.memberId, memberId))
     .orderBy(desc(familyPhotos.createdAt));
 
-  return tags.map(t => t.photo);
+  return tags.map((t: { photo: typeof familyPhotos.$inferSelect }) => t.photo);
 }
