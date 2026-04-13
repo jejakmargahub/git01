@@ -34,6 +34,8 @@ export async function createMember(familyId: string, formData: FormData) {
   const fullName = formData.get("fullName") as string;
   const nickname = formData.get("nickname") as string;
   const mandarinName = formData.get("mandarinName") as string;
+  const ethnicityId = formData.get("ethnicityId") as string;
+  const regionalName = formData.get("regionalName") as string;
   const photoUrl = formData.get("photoUrl") as string;
   const gender = formData.get("gender") as string;
   const rawBirth = formData.get("birthDate") as string;
@@ -55,6 +57,8 @@ export async function createMember(familyId: string, formData: FormData) {
       fullName,
       nickname: nickname || null,
       mandarinName: mandarinName || null,
+      ethnicityId: ethnicityId || null,
+      regionalName: regionalName || null,
       photoUrl: photoUrl || null,
       gender,
       birthDate: birthDate || null,
@@ -79,6 +83,8 @@ export async function updateMember(
   const fullName = formData.get("fullName") as string;
   const nickname = formData.get("nickname") as string;
   const mandarinName = formData.get("mandarinName") as string;
+  const ethnicityId = formData.get("ethnicityId") as string;
+  const regionalName = formData.get("regionalName") as string;
   const photoUrl = formData.get("photoUrl") as string;
   const gender = formData.get("gender") as string;
   const rawBirth = formData.get("birthDate") as string;
@@ -99,6 +105,8 @@ export async function updateMember(
       fullName,
       nickname: nickname || null,
       mandarinName: mandarinName || null,
+      ethnicityId: ethnicityId || null,
+      regionalName: regionalName || null,
       photoUrl: photoUrl || null,
       gender,
       birthDate: birthDate || null,

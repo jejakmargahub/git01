@@ -1,11 +1,12 @@
 import { db } from "@/lib/db";
-import { families, familyMembers, relationships, familyAccess } from "@/lib/db/schema";
+import { families, familyMembers, relationships, familyAccess, ethnicities } from "@/lib/db/schema";
 import { auth } from "@/lib/auth";
 import { eq, and } from "drizzle-orm";
 import { notFound, redirect } from "next/navigation";
 import { IS_DEMO_MODE } from "@/lib/demo-mode";
 import { getDemoFamily, getDemoMembers, getDemoRelationships, getDemoAccess, DEMO_USER } from "@/lib/db/mock-data";
 import FamilyPageClient from "./FamilyPageClient";
+import { getEthnicities } from "@/lib/actions/ethnicity";
 
 export default async function FamilyPage({
   params,
@@ -56,8 +57,32 @@ export default async function FamilyPage({
   if (!family) notFound();
 
   const members = await db
-    .select()
+    .select({
+      id: familyMembers.id,
+      familyId: familyMembers.familyId,
+      fullName: familyMembers.fullName,
+      nickname: familyMembers.nickname,
+      mandarinName: familyMembers.mandarinName,
+      regionalName: familyMembers.regionalName,
+      photoUrl: familyMembers.photoUrl,
+      gender: familyMembers.gender,
+      birthDate: familyMembers.birthDate,
+      deathDate: familyMembers.deathDate,
+      title: familyMembers.title,
+      phone: familyMembers.phone,
+      bio: familyMembers.bio,
+      ethnicityId: familyMembers.ethnicityId,
+      ethnicity: {
+        id: ethnicities.id,
+        name: ethnicities.name,
+        scriptName: ethnicities.scriptName,
+        labelName: ethnicities.labelName,
+        fontFamily: ethnicities.fontFamily,
+        isRtl: ethnicities.isRtl,
+      }
+    })
     .from(familyMembers)
+    .leftJoin(ethnicities, eq(familyMembers.ethnicityId, ethnicities.id))
     .where(eq(familyMembers.familyId, id))
     .orderBy(familyMembers.fullName);
 
@@ -66,12 +91,15 @@ export default async function FamilyPage({
     .from(relationships)
     .where(eq(relationships.familyId, id));
 
+  const ethnicitiesData = await getEthnicities();
+
   return (
     <FamilyPageClient
       family={family}
       members={members}
       relationships={rels}
       userRole={access.role}
+      ethnicities={ethnicitiesData}
     />
   );
 }

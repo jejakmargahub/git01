@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { ImageKitProvider } from "@imagekit/next";
 import { upload } from "@imagekit/next";
+import { ETHNICITIES, getEthnicityById, getEthnicityByName } from "@/lib/constants/ethnicities";
 
 interface MemberFormProps {
   familyId: string;
@@ -11,6 +12,8 @@ interface MemberFormProps {
     fullName: string;
     nickname: string | null;
     mandarinName: string | null;
+    ethnicityId: string | null;
+    regionalName: string | null;
     photoUrl: string | null;
     gender: string;
     birthDate: string | null;
@@ -26,6 +29,8 @@ interface MemberFormProps {
   } | null;
   onSubmit: (familyId: string, formData: FormData, memberId?: string) => Promise<void>;
   onClose: () => void;
+  familySettings?: any;
+  ethnicities?: any[];
 }
 
 const TITLE_SUGGESTIONS = [
@@ -48,11 +53,30 @@ export default function MemberForm({
   quickAddContext,
   onSubmit,
   onClose,
+  familySettings,
+  ethnicities = [],
 }: MemberFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showTitleSuggestions, setShowTitleSuggestions] = useState(false);
   const [titleValue, setTitleValue] = useState(initialData?.title || "");
+
+  // Ethnicity states
+  const [selectedEthnicityId, setSelectedEthnicityId] = useState<string>(initialData?.ethnicityId || "");
+  
+  // Mencari metadata font berdasarkan ID database (UUID)
+  const getSelectedEthnicityMetadata = () => {
+    if (!selectedEthnicityId) return null;
+    
+    // 1. Cari dulu di daftar etnis dari database
+    const dbEth = ethnicities.find(e => e.id === selectedEthnicityId);
+    if (dbEth) return getEthnicityByName(dbEth.name);
+    
+    // 2. Fallback: Cari di konstanta jika ID masih berupa string lama (Self-Healing)
+    return getEthnicityById(selectedEthnicityId);
+  };
+
+  const selectedEthnicity = getSelectedEthnicityMetadata();
 
   // Photo states
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -71,8 +95,9 @@ export default function MemberForm({
       img.src = URL.createObjectURL(file);
       img.onload = () => {
         const canvas = document.createElement("canvas");
-        const MAX_WIDTH = 800;
-        const MAX_HEIGHT = 800;
+        const isHighRes = !!familySettings?.highResEnabled;
+        const MAX_WIDTH = isHighRes ? 4000 : 800;
+        const MAX_HEIGHT = isHighRes ? 4000 : 800;
         let width = img.width;
         let height = img.height;
 
@@ -104,7 +129,7 @@ export default function MemberForm({
             resolve(compressedFile);
           },
           "image/jpeg",
-          0.8 // 80% quality
+          isHighRes ? 1.0 : 0.8 // 100% quality if high-res enabled
         );
       };
       img.onerror = (err) => reject(err);
@@ -310,20 +335,64 @@ export default function MemberForm({
             />
           </div>
 
-          {/* Nama Mandarin */}
+          {/* Etnis / Suku */}
           <div className="input-group">
-            <label className="input-label" htmlFor="mandarinName">
-              Nama Mandarin
+            <label className="input-label" htmlFor="ethnicityId">
+              Etnis / Suku
             </label>
-            <input
-              id="mandarinName"
-              name="mandarinName"
-              type="text"
+            <select
+              id="ethnicityId"
+              name="ethnicityId"
               className="input-field"
-              placeholder="Contoh: 萧德兴 (opsional)"
-              defaultValue={initialData?.mandarinName || ""}
-            />
+              value={selectedEthnicityId}
+              onChange={(e) => setSelectedEthnicityId(e.target.value)}
+            >
+              <option value="">— Pilih Etnis (opsional) —</option>
+              {/* Gunakan data etnis dari Database (Live) */}
+              {ethnicities.map((eth) => (
+                <option key={eth.id} value={eth.id}>
+                  {eth.name}
+                </option>
+              ))}
+            </select>
           </div>
+
+          {/* Nama Regional (Dinamis berdasarkan Etnis) */}
+          {selectedEthnicity && (
+            <div className="input-group">
+              <label className="input-label" htmlFor="regionalName">
+                {selectedEthnicity.labelName}
+              </label>
+              <input
+                id="regionalName"
+                name="regionalName"
+                type="text"
+                className={`input-field ${selectedEthnicity.fontClass}`}
+                dir={selectedEthnicity.isRtl ? "rtl" : "ltr"}
+                style={{
+                  fontFamily: selectedEthnicity.fontFamily || undefined,
+                  fontSize: "18px",
+                }}
+                placeholder={selectedEthnicity.example ? `Contoh: ${selectedEthnicity.example}` : "Masukkan nama dalam aksara"}
+                defaultValue={
+                  initialData?.regionalName ||
+                  (selectedEthnicityId === "tionghoa" ? initialData?.mandarinName || "" : "")
+                }
+              />
+              {selectedEthnicity.example && (
+                <p style={{ margin: "4px 0 0", fontSize: "11px", color: "var(--muted)" }}>
+                  Aksara: {selectedEthnicity.scriptName} — Contoh: <span style={{ fontFamily: selectedEthnicity.fontFamily || undefined }}>{selectedEthnicity.example}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Nama Mandarin (legacy, hidden — tetap kirim jika ada) */}
+          <input
+            type="hidden"
+            name="mandarinName"
+            value={initialData?.mandarinName || ""}
+          />
 
           {/* Jenis Kelamin */}
           <div className="input-group">

@@ -9,6 +9,7 @@ import MemberForm from "@/components/family/MemberForm";
 import MemberDetail from "@/components/family/MemberDetail";
 import AddRelationshipDialog from "@/components/family/AddRelationshipDialog";
 import InviteDialog from "@/components/family/InviteDialog";
+import FamilySettingsDialog from "@/components/family/FamilySettingsDialog";
 import { createMember, updateMember, deleteMember } from "@/lib/actions/member";
 import {
   addRelationship,
@@ -20,6 +21,7 @@ interface FamilyPageClientProps {
   members: FamilyMember[];
   relationships: Relationship[];
   userRole: string;
+  ethnicities: any[];
 }
 
 type ViewMode = "tree" | "list";
@@ -29,6 +31,7 @@ export default function FamilyPageClient({
   members,
   relationships,
   userRole,
+  ethnicities,
 }: FamilyPageClientProps) {
   const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("tree");
@@ -49,6 +52,7 @@ export default function FamilyPageClient({
     sourceGender?: string;
   } | null>(null);
   const [highlightNodeId, setHighlightNodeId] = useState<string | null>(null);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
 
   const canEdit = userRole === "admin" || userRole === "editor";
   const isAdmin = userRole === "admin";
@@ -271,6 +275,30 @@ export default function FamilyPageClient({
               </button>
             )}
 
+            {/* Family Settings Button */}
+            {isAdmin && (
+              <button
+                onClick={() => setShowSettingsDialog(true)}
+                style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  border: "1px solid var(--card-border)",
+                  background: "var(--card)",
+                  color: "var(--foreground)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "18px",
+                  transition: "all 0.2s ease",
+                }}
+                title="Pengaturan"
+              >
+                ⚙️
+              </button>
+            )}
+
             {/* Edit Mode Toggle */}
             {canEdit && viewMode === "tree" && (
               <button
@@ -487,6 +515,7 @@ export default function FamilyPageClient({
       {showMemberForm && (
         <MemberForm
           familyId={family.id}
+          familySettings={family.settings}
           initialData={
             editingMember
               ? {
@@ -511,6 +540,7 @@ export default function FamilyPageClient({
             setEditingMember(null);
             setQuickAddContext(null);
           }}
+          ethnicities={ethnicities}
         />
       )}
 
@@ -553,6 +583,20 @@ export default function FamilyPageClient({
         open={showInviteDialog}
         onClose={() => setShowInviteDialog(false)}
       />
+
+      {/* Family Settings Dialog */}
+      {showSettingsDialog && isAdmin && (
+        <FamilySettingsDialog
+          familyId={family.id}
+          familyName={family.name}
+          currentInviteCode={family.inviteCode || ""}
+          isPublicViewEnabled={family.isPublicViewEnabled}
+          publicViewSlug={family.publicViewSlug}
+          settings={family.settings}
+          onClose={() => setShowSettingsDialog(false)}
+          onUpdate={() => router.refresh()}
+        />
+      )}
     </>
   );
 }

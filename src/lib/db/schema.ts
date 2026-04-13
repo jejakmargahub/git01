@@ -7,6 +7,8 @@ import {
   timestamp,
   date,
   char,
+  jsonb,
+  integer,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -46,6 +48,7 @@ export const families = pgTable("families", {
   isPublicViewEnabled: boolean("is_public_view_enabled").default(false).notNull(), // New field for link sharing
   publicViewSlug: varchar("public_view_slug", { length: 100 }).unique(), // Unique slug for public view
   inviteCode: varchar("invite_code", { length: 50 }).unique(), // Secret key for invitations
+  settings: jsonb("settings").default({}).notNull(), // Per-family settings (e.g. highResEnabled)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -59,15 +62,34 @@ export const familiesRelations = relations(families, ({ one, many }) => ({
   access: many(familyAccess),
 }));
 
+// ==================== ETHNICITIES (Master Data) ====================
+export const ethnicities = pgTable("ethnicities", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  scriptName: varchar("script_name", { length: 255 }), // e.g. 'Hanacaraka'
+  labelName: varchar("label_name", { length: 255 }), // e.g. 'Nama Aksara Jawa'
+  fontFamily: varchar("font_family", { length: 255 }), // e.g. 'Noto Sans Javanese'
+  isRtl: boolean("is_rtl").default(false).notNull(),
+  example: varchar("example", { length: 255 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const ethnicitiesRelations = relations(ethnicities, ({ many }) => ({
+  members: many(familyMembers),
+}));
+
 // ==================== FAMILY MEMBERS ====================
 export const familyMembers = pgTable("family_members", {
   id: uuid("id").defaultRandom().primaryKey(),
   familyId: uuid("family_id")
     .notNull()
     .references(() => families.id, { onDelete: "cascade" }),
+  ethnicityId: uuid("ethnicity_id").references(() => ethnicities.id), // Link to master data
   fullName: varchar("full_name", { length: 255 }).notNull(),
   nickname: varchar("nickname", { length: 100 }), // nama panggilan
-  mandarinName: varchar("mandarin_name", { length: 100 }), // nama mandarin
+  mandarinName: varchar("mandarin_name", { length: 100 }), // nama mandarin (legacy)
+  regionalName: varchar("regional_name", { length: 255 }), // generalized regional name script
   photoUrl: varchar("photo_url", { length: 500 }), // optional member photo
   gender: char("gender", { length: 1 }).notNull(), // 'M' or 'F'
   birthDate: date("birth_date"),
@@ -84,6 +106,10 @@ export const familyMembersRelations = relations(
     family: one(families, {
       fields: [familyMembers.familyId],
       references: [families.id],
+    }),
+    ethnicity: one(ethnicities, {
+      fields: [familyMembers.ethnicityId],
+      references: [ethnicities.id],
     }),
     relationshipsFrom: many(relationships, { relationName: "fromMember" }),
     relationshipsTo: many(relationships, { relationName: "toMember" }),
@@ -220,6 +246,62 @@ export const userSessionsRelations = relations(userSessions, ({ one }) => ({
   }),
 }));
 
+// ==================== FAMILY PHOTOS & TAGS ====================
+export const familyPhotos = pgTable("family_photos", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  familyId: uuid("family_id")
+    .notNull()
+    .references(() => families.id, { onDelete: "cascade" }),
+  url: varchar("url", { length: 500 }).notNull(),
+  thumbnailUrl: varchar("thumbnail_url", { length: 500 }),
+  caption: text("caption"),
+  takenAt: timestamp("taken_at"),
+  uploadedById: uuid("uploaded_by_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const familyPhotosRelations = relations(
+  familyPhotos,
+  ({ one, many }) => ({
+    family: one(families, {
+      fields: [familyPhotos.familyId],
+      references: [families.id],
+    }),
+    uploadedBy: one(users, {
+      fields: [familyPhotos.uploadedById],
+      references: [users.id],
+    }),
+    tags: many(photoTags),
+  })
+);
+
+export const photoTags = pgTable("photo_tags", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  photoId: uuid("photo_id")
+    .notNull()
+    .references(() => familyPhotos.id, { onDelete: "cascade" }),
+  memberId: uuid("member_id")
+    .notNull()
+    .references(() => familyMembers.id, { onDelete: "cascade" }),
+  // Coordinates as percentages (0-100) for responsiveness
+  xPos: integer("x_pos"), 
+  yPos: integer("y_pos"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const photoTagsRelations = relations(photoTags, ({ one }) => ({
+  photo: one(familyPhotos, {
+    fields: [photoTags.photoId],
+    references: [familyPhotos.id],
+  }),
+  member: one(familyMembers, {
+    fields: [photoTags.memberId],
+    references: [familyMembers.id],
+  }),
+}));
+
 // ==================== TYPE EXPORTS ====================
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -235,3 +317,9 @@ export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
 export type UserSession = typeof userSessions.$inferSelect;
 export type NewUserSession = typeof userSessions.$inferInsert;
+export type Ethnicity = typeof ethnicities.$inferSelect;
+export type NewEthnicity = typeof ethnicities.$inferInsert;
+export type FamilyPhoto = typeof familyPhotos.$inferSelect;
+export type NewFamilyPhoto = typeof familyPhotos.$inferInsert;
+export type PhotoTag = typeof photoTags.$inferSelect;
+export type NewPhotoTag = typeof photoTags.$inferInsert;

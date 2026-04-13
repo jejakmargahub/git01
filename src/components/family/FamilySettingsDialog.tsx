@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { generateInviteCode, exportFamilyData, togglePublicView, regeneratePublicSlug } from "@/lib/actions/family";
+import { generateInviteCode, exportFamilyData, togglePublicView, regeneratePublicSlug, updateFamilySettings } from "@/lib/actions/family";
 
 interface FamilySettingsDialogProps {
   familyId: string;
@@ -9,6 +9,7 @@ interface FamilySettingsDialogProps {
   currentInviteCode: string;
   isPublicViewEnabled: boolean;
   publicViewSlug: string | null;
+  settings: any;
   onClose: () => void;
   onUpdate: () => void;
 }
@@ -19,12 +20,15 @@ export default function FamilySettingsDialog({
   currentInviteCode,
   isPublicViewEnabled,
   publicViewSlug,
+  settings,
   onClose,
   onUpdate,
 }: FamilySettingsDialogProps) {
   const [isResetting, setIsResetting] = useState(false);
   const [isTogglingPublic, setIsTogglingPublic] = useState(false);
   const [isRegeneratingSlug, setIsRegeneratingSlug] = useState(false);
+  const [isUpdatingSettings, setIsUpdatingSettings] = useState(false);
+  const [highResEnabled, setHighResEnabled] = useState(!!settings?.highResEnabled);
   const [isExporting, setIsExporting] = useState(false);
   const [exportFormat, setExportFormat] = useState<"json" | "csv" | "pdf">("json");
   const [includePhotos, setIncludePhotos] = useState(true);
@@ -84,6 +88,21 @@ export default function FamilySettingsDialog({
     navigator.clipboard.writeText(url);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
+  };
+
+  const handleToggleHighRes = async () => {
+    setIsUpdatingSettings(true);
+    const newStatus = !highResEnabled;
+    try {
+      await updateFamilySettings(familyId, { ...settings, highResEnabled: newStatus });
+      setHighResEnabled(newStatus);
+      setMessage({ type: "success", text: `Mode Kualitas Tinggi ${newStatus ? "diaktifkan" : "dimatikan"}` });
+      onUpdate();
+    } catch (error) {
+      setMessage({ type: "error", text: error instanceof Error ? error.message : "Gagal memperbarui pengaturan" });
+    } finally {
+      setIsUpdatingSettings(false);
+    }
   };
 
   const handleExport = async () => {
@@ -293,10 +312,13 @@ export default function FamilySettingsDialog({
             </div>
           </section>
 
-          {/* Section: Invite Code */}
+            </div>
+          </section>
+
+          {/* Section: Storage & Media */}
           <section>
             <h4 style={{ fontSize: "16px", fontWeight: "600", marginBottom: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
-              🎟️ Kode Undangan
+              🖼️ Media & Penyimpanan
             </h4>
             <div style={{ 
               padding: "16px", 
@@ -305,23 +327,41 @@ export default function FamilySettingsDialog({
               border: "1px solid var(--card-border)",
               display: "flex",
               flexDirection: "column",
-              gap: "12px"
+              gap: "16px"
             }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <code style={{ fontSize: "18px", fontWeight: "800", color: "var(--primary)", letterSpacing: "1px" }}>
-                  {currentInviteCode}
-                </code>
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span style={{ fontSize: "14px", fontWeight: "500" }}>Foto Kualitas Tinggi</span>
+                  <span style={{ fontSize: "11px", color: "var(--muted)" }}>Simpan resolusi asli (Non-Kompresi)</span>
+                </div>
                 <button 
-                  onClick={handleResetCode}
-                  disabled={isResetting}
-                  className="btn btn-secondary"
-                  style={{ minHeight: "36px", padding: "0 16px", fontSize: "13px" }}
+                  onClick={handleToggleHighRes}
+                  disabled={isUpdatingSettings}
+                  style={{
+                    width: "44px",
+                    height: "24px",
+                    borderRadius: "12px",
+                    background: highResEnabled ? "var(--success)" : "var(--muted)",
+                    position: "relative",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "all 0.3s"
+                  }}
                 >
-                  {isResetting ? "Memproses..." : "Reset Kode"}
+                  <div style={{
+                    width: "18px",
+                    height: "18px",
+                    borderRadius: "50%",
+                    background: "white",
+                    position: "absolute",
+                    top: "3px",
+                    left: highResEnabled ? "23px" : "3px",
+                    transition: "all 0.3s"
+                  }} />
                 </button>
               </div>
               <p style={{ fontSize: "12px", color: "var(--muted)", lineHeight: "1.4" }}>
-                Gunakan reset jika kode saat ini tersebar ke orang yang tidak diinginkan. Link lama akan otomatis tidak berlaku.
+                Jika aktif, foto anggota baru akan disimpan dalam kualitas 100%. Ini akan memakan lebih banyak kuota penyimpanan.
               </p>
             </div>
           </section>

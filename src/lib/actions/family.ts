@@ -107,6 +107,7 @@ export async function getUserFamilies() {
         publicViewSlug: families.publicViewSlug,
         createdBy: families.createdBy,
         createdAt: families.createdAt,
+        settings: families.settings,
       },
       role: familyAccess.role,
       memberCount: count(familyMembers.id),
@@ -346,4 +347,33 @@ export async function regeneratePublicSlug(familyId: string) {
   revalidatePath(`/family/${familyId}`);
   revalidatePath("/dashboard");
   return newSlug;
+}
+
+export async function updateFamilySettings(familyId: string, settings: any) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  // Check admin access
+  const [access] = await db
+    .select()
+    .from(familyAccess)
+    .where(
+      and(
+        eq(familyAccess.familyId, familyId),
+        eq(familyAccess.userId, session.user.id),
+        eq(familyAccess.role, "admin")
+      )
+    )
+    .limit(1);
+
+  if (!access) throw new Error("Hanya admin yang dapat mengubah pengaturan");
+
+  await db
+    .update(families)
+    .set({ settings })
+    .where(eq(families.id, familyId));
+
+  revalidatePath(`/family/${familyId}`);
+  revalidatePath("/dashboard");
+  return { success: true };
 }

@@ -6,9 +6,17 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "gogo": "git add . && git commit -m \"update\" && git push"
   },
   "dependencies": {
+    "@fontsource/noto-sans-arabic": "^5.2.10",
+    "@fontsource/noto-sans-balinese": "^5.2.9",
+    "@fontsource/noto-sans-batak": "^5.2.7",
+    "@fontsource/noto-sans-javanese": "^5.2.8",
+    "@fontsource/noto-sans-sc": "^5.2.9",
+    "@fontsource/noto-sans-sundanese": "^5.2.8",
+    "@fontsource/noto-sans-tc": "^5.2.9",
     "@imagekit/next": "^2.1.5",
     "@neondatabase/serverless": "^1.0.2",
     "bcryptjs": "^3.0.3",

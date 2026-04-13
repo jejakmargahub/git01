@@ -2,6 +2,7 @@
 
 import type { FamilyMember } from "@/lib/db/schema";
 import { getOptimizedPhotoUrl } from "@/lib/imagekit";
+import { getEthnicityById } from "@/lib/constants/ethnicities";
 
 interface MemberDetailProps {
   member: FamilyMember;
@@ -156,7 +157,40 @@ export default function MemberDetail({
             }}
           >
             <InfoRow label="Jenis Kelamin" value={member.gender === "M" ? "Laki-laki" : "Perempuan"} />
-            {member.mandarinName && <InfoRow label="Nama Mandarin" value={member.mandarinName} />}
+            
+            {/* Tampilkan Etnis dari Database (Hasil JOIN) */}
+            {(member as any).ethnicity?.name && (
+              <InfoRow label="Etnis" value={(member as any).ethnicity.name} />
+            )}
+
+            {(member as any).regionalName && (() => {
+              const eth = (member as any).ethnicity;
+              const metadata = eth ? (getEthnicityByName(eth.name) || eth) : null;
+              
+              return (
+                <InfoRow
+                  label={metadata?.labelName || "Nama Regional"}
+                  value={
+                    <span
+                      className={metadata?.fontClass || ""}
+                      dir={metadata?.isRtl ? "rtl" : "ltr"}
+                      style={{
+                        fontFamily: metadata?.fontFamily || undefined,
+                        fontSize: "16px",
+                      }}
+                    >
+                      {(member as any).regionalName}
+                    </span>
+                  }
+                />
+              );
+            })()}
+            {member.mandarinName && !(member as any).regionalName && (
+              <InfoRow
+                label="Nama Mandarin"
+                value={<span className="font-chinese">{member.mandarinName}</span>}
+              />
+            )}
             <InfoRow label="Bulan & Tahun Lahir" value={formatDate(member.birthDate)} />
             {isDeceased && (
               <InfoRow label="Tanggal Meninggal" value={formatFullDate(member.deathDate)} />

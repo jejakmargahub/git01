@@ -2,10 +2,12 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useFontSettings } from "@/components/providers/FontProvider";
 
 export default function ProfilePage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const { autoFonts, toggleAutoFonts } = useFontSettings();
 
   // Demo mode fallback
   const userName = session?.user?.name || "Chris Siauw (Demo)";
@@ -156,6 +158,60 @@ export default function ProfilePage() {
                 Ikuti Sistem
               </span>
             </div>
+
+            {/* Auto Font Toggle */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                padding: "12px 0",
+                borderBottom: "1px solid var(--card-border)",
+              }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>🔡</span>
+                <div>
+                  <p style={{ margin: 0, fontSize: "15px" }}>Deteksi Aksara Otomatis</p>
+                  <p style={{ margin: 0, fontSize: "11px", color: "var(--muted)" }}>Jawa, Mandarin, Arab, dll.</p>
+                </div>
+              </div>
+              <button
+                onClick={toggleAutoFonts}
+                style={{
+                  width: "48px",
+                  height: "26px",
+                  borderRadius: "13px",
+                  background: autoFonts ? "var(--primary)" : "var(--card-border)",
+                  border: "none",
+                  position: "relative",
+                  cursor: "pointer",
+                  transition: "background 0.3s ease",
+                  padding: 0
+                }}
+              >
+                <div
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    background: "white",
+                    position: "absolute",
+                    top: "3px",
+                    left: autoFonts ? "25px" : "3px",
+                    transition: "left 0.3s ease",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                  }}
+                />
+              </button>
+            </div>
+
             <div
               style={{
                 display: "flex",

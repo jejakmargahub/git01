@@ -98,6 +98,22 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ==================== REGIONAL FONTS ==================== */
+:root {
+  --font-regional: 'Noto Sans Javanese', 'Noto Sans Sundanese', 'Noto Sans Arabic', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans Batak', 'Noto Sans Balinese';
+}
+
+body.auto-font-enabled {
+  font-family: 'Segoe UI', 'Inter', 'Noto Sans Javanese', 'Noto Sans Sundanese', 'Noto Sans Arabic', 'Noto Sans SC', 'Noto Sans TC', 'Noto Sans Batak', 'Noto Sans Balinese', system-ui, -apple-system, sans-serif;
+}
+
+.font-javanese { font-family: 'Noto Sans Javanese', sans-serif; }
+.font-sundanese { font-family: 'Noto Sans Sundanese', sans-serif; }
+.font-arabic { font-family: 'Noto Sans Arabic', sans-serif; }
+.font-chinese { font-family: 'Noto Sans SC', 'Noto Sans TC', sans-serif; }
+.font-batak { font-family: 'Noto Sans Batak', sans-serif; }
+.font-balinese { font-family: 'Noto Sans Balinese', sans-serif; }
+
 /* ==================== RIPPLE EFFECT ==================== */
 @keyframes ripple {
   to {
@@ -311,8 +327,25 @@ select.input-field {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+@media (min-width: 768px) {
+  .bottom-sheet {
+    bottom: 50%;
+    transform: translateX(-50%) translateY(50%);
+    border-radius: var(--radius-lg);
+    max-height: 90vh;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
 .bottom-sheet.active {
   transform: translateX(-50%) translateY(0);
+}
+
+@media (min-width: 768px) {
+  .bottom-sheet.active {
+    transform: translateX(-50%) translateY(50%);
+  }
 }
 
 .bottom-sheet-handle {
@@ -332,15 +365,10 @@ select.input-field {
   -webkit-overflow-scrolling: touch;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
-.bottom-sheet-content::-webkit-scrollbar {
-  display: none;
-}
-
-/* Hide scrollbar for IE, Edge and Firefox */
+/* Allow scrollbars for better accessibility on desktop */
 .bottom-sheet-content {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-border) transparent;
 }
 
 /* ==================== MODAL (Desktop Friendly) ==================== */

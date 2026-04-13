@@ -1,6 +1,16 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import "./globals.css";
+import { FontProvider } from "@/components/providers/FontProvider";
+
+// Import regional Noto Sans fonts
+import "@fontsource/noto-sans-javanese";
+import "@fontsource/noto-sans-sundanese";
+import "@fontsource/noto-sans-arabic";
+import "@fontsource/noto-sans-sc";
+import "@fontsource/noto-sans-tc";
+import "@fontsource/noto-sans-batak";
+import "@fontsource/noto-sans-balinese";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,7 +41,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className={`${geistSans.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} antialiased`}>
+        <FontProvider>{children}</FontProvider>
+      </body>
     </html>
   );
 }
