@@ -17,11 +17,13 @@ interface FamilyTreeProps {
   isEditMode?: boolean;
   onQuickAdd?: (sourceId: string, type: "child" | "spouse" | "sibling" | "parent") => void;
   highlightNodeId?: string | null;
+  familyType?: "genealogy" | "spiritual";
 }
 
 function buildTree(
   members: FamilyMember[],
-  relationships: Relationship[]
+  relationships: Relationship[],
+  familyType: "genealogy" | "spiritual" = "genealogy"
 ): TreeNode[] {
   const memberMap = new Map<string, FamilyMember>();
   members.forEach((m) => memberMap.set(m.id, m));
@@ -32,7 +34,12 @@ function buildTree(
   const spouseMap = new Map<string, string[]>();
 
   relationships.forEach((r) => {
-    if (r.relationType === "parent") {
+    // Determine if this is a "parental" link based on mode
+    const isParentLink = familyType === "spiritual" 
+      ? (r.relationType === "spiritual_parent" || r.relationType === "successor")
+      : (r.relationType === "parent");
+
+    if (isParentLink) {
       // fromMember is parent of toMember
       const children = parentToChildren.get(r.fromMemberId) || [];
       children.push(r.toMemberId);
@@ -41,7 +48,7 @@ function buildTree(
       const parents = childToParents.get(r.toMemberId) || [];
       parents.push(r.fromMemberId);
       childToParents.set(r.toMemberId, parents);
-    } else if (r.relationType === "spouse") {
+    } else if (r.relationType === "spouse" && familyType === "genealogy") {
       const existing = spouseMap.get(r.fromMemberId) || [];
       if (!existing.includes(r.toMemberId)) {
         existing.push(r.toMemberId);
@@ -253,12 +260,18 @@ function RenderNode({
   y: number;
   onClick: () => void;
   isHighlighted?: boolean;
+  familyType?: "genealogy" | "spiritual";
 }) {
   const isDeceased = !!member.deathDate;
   const genderIcon = member.gender === "M" ? "♂" : "♀";
   const genderColor = member.gender === "M" ? "#60a5fa" : "#f472b6";
+  const nodeBorderColor = familyType === "spiritual" ? "#d4af37" : (isHighlighted ? "var(--primary)" : genderColor);
   const deceasedPrefix = member.gender === "M" ? "Alm." : "Almh.";
   
+  // For spiritual members, we can show specific parts of metadata as secondary text
+  const metadata = member.metadata as any;
+  const spiritualTitle = metadata?.title || member.title;
+  const spiritualPeriod = metadata?.period;
   // Calculate age
   let ageText = "";
   if (member.birthDate) {
@@ -300,7 +313,7 @@ function RenderNode({
         rx={14}
         ry={14}
         fill={isDeceased ? "#f3f4f6" : "white"}
-        stroke={isHighlighted ? "var(--primary)" : genderColor}
+        stroke={nodeBorderColor}
         strokeWidth={isHighlighted ? 4 : 2.5}
         className={isHighlighted ? "node-highlight-pulse" : ""}
       />
@@ -320,11 +333,21 @@ function RenderNode({
           preserveAspectRatio="xMidYMid slice"
           clipPath={`url(#avatar-clip-${member.id})`}
         />
+      ) : familyType === "spiritual" ? (
+        <image
+          href="/icons/spiritual-default.png"
+          x={x + 8}
+          y={y + 15}
+          width={40}
+          height={40}
+          preserveAspectRatio="xMidYMid slice"
+          clipPath={`url(#avatar-clip-${member.id})`}
+        />
       ) : (
         <circle cx={x + 28} cy={y + 35} r={20} fill="#f1f5f9" />
       )}
       {/* Gender icon overlay on avatar or circle */}
-      {!member.photoUrl && (
+      {!member.photoUrl && familyType !== "spiritual" && (
         <text
           x={x + 28}
           y={y + 42}
@@ -390,6 +413,14 @@ function RenderNode({
             {isDeceased ? " 🌼" : ""}
           </div>
           
+          {/* Spiritual Metadata */}
+          {familyType === "spiritual" && (
+            <div style={{ fontSize: "12px", color: "#b45309", fontWeight: "600", marginBottom: "4px" }}>
+              {spiritualTitle}
+              {spiritualPeriod && <span style={{ opacity: 0.7, fontWeight: "400" }}> • {spiritualPeriod}</span>}
+            </div>
+          )}
+          
           {/* Secondary Info: Nickname & Title */}
           <div style={{ fontSize: "11px", color: "#6b7280", fontWeight: "400", lineHeight: "1.2" }}>
             {member.nickname && member.nickname !== member.fullName && (
@@ -433,7 +464,7 @@ function EditArrows({
       lx: x + NODE_WIDTH / 2, 
       ly: y - DISTANCE, 
       icon: "☝️", 
-      label: "Orang Tua",
+      label: familyType === "spiritual" ? "Guru" : "Orang Tua",
       labelPos: { x: 0, y: -25 }
     },
     { 
@@ -441,7 +472,7 @@ function EditArrows({
       lx: x + NODE_WIDTH / 2, 
       ly: y + NODE_HEIGHT + DISTANCE, 
       icon: "👇", 
-      label: "Anak",
+      label: familyType === "spiritual" ? "Murid" : "Anak",
       labelPos: { x: 0, y: 30 }
     },
     { 
@@ -449,7 +480,7 @@ function EditArrows({
       lx: x - DISTANCE, 
       ly: y + NODE_HEIGHT / 2, 
       icon: "👈", 
-      label: "Saudara",
+      label: familyType === "spiritual" ? "Rekan" : "Saudara",
       labelPos: { x: -45, y: 5 }
     },
     { 
@@ -457,7 +488,7 @@ function EditArrows({
       lx: x + NODE_WIDTH + DISTANCE, 
       ly: y + NODE_HEIGHT / 2, 
       icon: "👉", 
-      label: "Pasangan",
+      label: familyType === "spiritual" ? "Penerus" : "Pasangan",
       labelPos: { x: 45, y: 5 }
     },
   ];
@@ -526,6 +557,7 @@ export default function FamilyTree({
   isEditMode = false,
   onQuickAdd,
   highlightNodeId,
+  familyType = "genealogy",
 }: FamilyTreeProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -540,7 +572,7 @@ export default function FamilyTree({
     if (!isEditMode) setSelectedEditNode(null);
   }, [isEditMode]);
 
-  const trees = buildTree(members, relationships);
+  const trees = buildTree(members, relationships, familyType);
 
   // Layout all trees side by side
   let currentX = 120; // Start with more space
@@ -811,7 +843,14 @@ export default function FamilyTree({
       const midY =
         (parentBottomY + layout.children[0].y) / 2;
 
+      // Find which child has a 'main line' relation to this parent
+      const mainLineChildIds = relationships
+        .filter(r => r.fromMemberId === layout.node.member.id && r.isMainLine)
+        .map(r => r.toMemberId);
+
       // Vertical line from parent center down
+      const isParentMain = mainLineChildIds.length > 0 && familyType === "spiritual";
+
       lines.push(
         <line
           key={`parent-down-${layout.node.member.id}`}
@@ -819,8 +858,8 @@ export default function FamilyTree({
           y1={parentBottomY}
           x2={parentCenterX}
           y2={midY}
-          stroke="#94a3b8"
-          strokeWidth={1.5}
+          stroke={isParentMain ? "#FFD700" : "#94a3b8"}
+          strokeWidth={isParentMain ? 3 : 1.5}
         />
       );
 
@@ -844,6 +883,8 @@ export default function FamilyTree({
       // Vertical lines from horizontal bar to each child
       layout.children.forEach((child) => {
         const childCenterX = getNodeMidpoint(child);
+        const isChildMain = mainLineChildIds.includes(child.node.member.id) && familyType === "spiritual";
+
         lines.push(
           <line
             key={`child-down-${child.node.member.id}`}
@@ -851,8 +892,8 @@ export default function FamilyTree({
             y1={midY}
             x2={childCenterX}
             y2={child.y}
-            stroke="#94a3b8"
-            strokeWidth={1.5}
+            stroke={isChildMain ? "#FFD700" : "#94a3b8"}
+            strokeWidth={isChildMain ? 3 : 1.5}
           />
         );
 
@@ -923,6 +964,7 @@ export default function FamilyTree({
               member={layoutNode.node.member}
               x={layoutNode.x}
               y={layoutNode.y}
+              familyType={familyType}
               isHighlighted={highlightNodeId === layoutNode.node.member.id}
               onClick={() => {
                 if (isEditMode) {
@@ -937,6 +979,7 @@ export default function FamilyTree({
               <EditArrows
                 x={layoutNode.x}
                 y={layoutNode.y}
+                familyType={familyType}
                 onAdd={(type) => onQuickAdd?.(layoutNode.node.member.id, type)}
               />
             )}
@@ -952,6 +995,7 @@ export default function FamilyTree({
                       member={spouse}
                       x={sx}
                       y={sy}
+                      familyType={familyType}
                       isHighlighted={highlightNodeId === spouse.id}
                       onClick={() => {
                         if (isEditMode) {
@@ -966,6 +1010,7 @@ export default function FamilyTree({
                       <EditArrows
                         x={sx}
                         y={sy}
+                        familyType={familyType}
                         onAdd={(type) => onQuickAdd?.(spouse.id, type)}
                       />
                     )}

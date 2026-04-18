@@ -91,34 +91,25 @@ export default function FamilyPageClient({
       
       try {
         if (relationType === "child") {
-          // Add relationship from source (parent) to new (child)
-          await addRelationship(familyId, sourceMemberId, newMember.id, "parent");
+          // Add relationship from source (parent/guru) to new (child/murid)
+          const relType = (family as any).familyType === "spiritual" ? "spiritual_parent" : "parent";
+          await addRelationship(familyId, sourceMemberId, newMember.id, relType);
         } else if (relationType === "spouse") {
-          await addRelationship(familyId, sourceMemberId, newMember.id, "spouse");
+          const relType = (family as any).familyType === "spiritual" ? "successor" : "spouse";
+          await addRelationship(familyId, sourceMemberId, newMember.id, relType);
         } else if (relationType === "parent") {
-          // Add relationship from new (parent) to source (child)
-          await addRelationship(familyId, newMember.id, sourceMemberId, "parent");
+          // Add relationship from new (parent/guru) to source (child/murid)
+          const relType = (family as any).familyType === "spiritual" ? "spiritual_parent" : "parent";
+          await addRelationship(familyId, newMember.id, sourceMemberId, relType);
         } else if (relationType === "sibling") {
-          // Find parents of source member
-          const sourceRels = await getMemberRelationships(familyId, sourceMemberId);
-          const parents = sourceRels.filter((r: any) => r.relationType === "parent" && r.relatedMember.id !== sourceMemberId);
-          // Note: andRelationship is bidirectional for spouse/child but we need to be careful with the "from" member.
-          // Actually relationships are stored as (from, to, type).
-          // If R is parent-child, then from is parent, to is child.
-          
-          // Let's re-fetch relationships to be sure about parents
-          const allRels = await getMemberRelationships(familyId, sourceMemberId);
-          // Parents of sourceMember are those where sourceMember is the child.
-          // In our DB schema, if r.relationType === 'parent', from is parent, to is child.
-          // Wait, getMemberRelationships returns relatedMember.
-          
-          // Simpler: Just look for relationships in the 'relationships' prop we already have
+          // For spiritual, 'sibling' means students of the same teacher
+          const parentRelType = (family as any).familyType === "spiritual" ? "spiritual_parent" : "parent";
           const parentsOfSource = relationships
-            .filter((r: any) => r.toMemberId === sourceMemberId && r.relationType === "parent")
+            .filter((r: any) => r.toMemberId === sourceMemberId && (r.relationType === "parent" || r.relationType === "spiritual_parent"))
             .map(r => r.fromMemberId);
           
           for (const parentId of parentsOfSource) {
-            await addRelationship(familyId, parentId, newMember.id, "parent");
+            await addRelationship(familyId, parentId, newMember.id, parentRelType);
           }
         }
       } catch (err) {
@@ -401,6 +392,7 @@ export default function FamilyPageClient({
             setShowMemberForm(true);
           }}
           highlightNodeId={highlightNodeId}
+          familyType={(family as any).familyType}
         />
       ) : (
         <div className="page-content">

@@ -48,6 +48,7 @@ export const families = pgTable("families", {
   isPublicViewEnabled: boolean("is_public_view_enabled").default(false).notNull(), // New field for link sharing
   publicViewSlug: varchar("public_view_slug", { length: 100 }).unique(), // Unique slug for public view
   inviteCode: varchar("invite_code", { length: 50 }).unique(), // Secret key for invitations
+  familyType: varchar("family_type", { length: 20 }).default("genealogy").notNull(), // 'genealogy', 'spiritual'
   settings: jsonb("settings").default({}).notNull(), // Per-family settings (e.g. highResEnabled)
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -97,6 +98,7 @@ export const familyMembers = pgTable("family_members", {
   title: varchar("title", { length: 100 }), // istilah/jabatan: Buyut, Kakek, dll
   phone: varchar("phone", { length: 20 }),
   bio: text("bio"),
+  metadata: jsonb("metadata").default({}).notNull(), // For flexible spiritual metadata
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -128,7 +130,8 @@ export const relationships = pgTable("relationships", {
   toMemberId: uuid("to_member_id")
     .notNull()
     .references(() => familyMembers.id, { onDelete: "cascade" }),
-  relationType: varchar("relation_type", { length: 20 }).notNull(), // 'parent', 'spouse', 'child'
+  relationType: varchar("relation_type", { length: 20 }).notNull(), // 'parent', 'spouse', 'child', 'spiritual_parent', 'successor'
+  isMainLine: boolean("is_main_line").default(false).notNull(), // For highlighting the "Golden Thread"
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -302,6 +305,26 @@ export const photoTagsRelations = relations(photoTags, ({ one }) => ({
   }),
 }));
 
+// ==================== LINEAGE RESOURCES ====================
+export const lineageResources = pgTable("lineage_resources", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  memberId: uuid("member_id")
+    .notNull()
+    .references(() => familyMembers.id, { onDelete: "cascade" }),
+  resourceType: varchar("resource_type", { length: 50 }), // 'sutta', 'article', 'image', 'book'
+  title: text("title").notNull(),
+  content: text("content"),
+  url: text("url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const lineageResourcesRelations = relations(lineageResources, ({ one }) => ({
+  member: one(familyMembers, {
+    fields: [lineageResources.memberId],
+    references: [familyMembers.id],
+  }),
+}));
+
 // ==================== TYPE EXPORTS ====================
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -323,3 +346,5 @@ export type FamilyPhoto = typeof familyPhotos.$inferSelect;
 export type NewFamilyPhoto = typeof familyPhotos.$inferInsert;
 export type PhotoTag = typeof photoTags.$inferSelect;
 export type NewPhotoTag = typeof photoTags.$inferInsert;
+export type LineageResource = typeof lineageResources.$inferSelect;
+export type NewLineageResource = typeof lineageResources.$inferInsert;

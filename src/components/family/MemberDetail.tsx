@@ -93,6 +93,19 @@ export default function MemberDetail({
                   flexShrink: 0,
                 }}
               />
+            ) : (member as any).metadata?.lineage ? (
+              <img
+                src="/icons/spiritual-default.png"
+                alt="Spiritual Icon"
+                style={{
+                  width: "56px",
+                  height: "56px",
+                  borderRadius: "50%",
+                  backgroundColor: "#fff",
+                  border: `2px solid #d4af37`,
+                  flexShrink: 0,
+                }}
+              />
             ) : (
               <div
                 style={{
@@ -209,6 +222,28 @@ export default function MemberDetail({
               />
             )}
             {member.bio && <InfoRow label="Bio" value={member.bio} />}
+            
+            {/* Spiritual Metadata Sections */}
+            {(member.metadata as any)?.title && (
+              <InfoRow label="Gelar Spiritual" value={(member.metadata as any).title} />
+            )}
+            {(member.metadata as any)?.period && (
+              <InfoRow label="Periode / Zaman" value={(member.metadata as any).period} />
+            )}
+            {(member.metadata as any)?.lineage && (
+              <InfoRow label="Silsilah" value={(member.metadata as any).lineage} />
+            )}
+            {(member.metadata as any)?.mainTeachings && (
+              <InfoRow label="Ajaran Utama" value={(member.metadata as any).mainTeachings} />
+            )}
+            {(member.metadata as any)?.location && (
+              <InfoRow label="Lokasi / Vihara" value={(member.metadata as any).location} />
+            )}
+            {(member.metadata as any)?.notes && (
+              <div style={{ marginTop: "4px", padding: "10px", backgroundColor: "#fffbeb", borderRadius: "8px", border: "1px solid #fde68a", fontSize: "12px", color: "#92400e" }}>
+                <strong>Catatan:</strong> {(member.metadata as any).notes}
+              </div>
+            )}
           </div>
 
           {/* Relationships */}
