@@ -63,14 +63,14 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-32 md:pt-48 md:pb-48 bg-[#1B4B82] overflow-hidden">
+      <section className="relative pt-32 pb-56 md:pt-48 md:pb-72 bg-[#1B4B82] overflow-hidden">
         <BatikPattern />
         
-        <div className="relative z-10 container mx-auto px-6 md:px-12 max-w-5xl">
+        <div className="relative z-30 container mx-auto px-6 md:px-12 max-w-5xl">
           <motion.h1 
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            className="text-6xl md:text-9xl font-black text-white mb-8 leading-[0.9] tracking-tighter"
+            className="text-5xl md:text-8xl font-black text-white mb-8 leading-[0.9] tracking-tighter"
           >
             Jejak <br /> 
             <span className="opacity-95">Keluarga</span>
@@ -80,7 +80,7 @@ export default function AboutPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-2xl text-blue-50/80 mb-12 max-w-xl leading-relaxed font-light"
+            className="text-lg md:text-xl text-blue-50/80 mb-10 max-w-xl leading-relaxed font-light"
           >
             Menelusuri jejak keluarga di Nusantara Indonesia. Sebuah rumah digital bagi setiap keluarga Indonesia untuk merawat cerita leluhur dan orang orang terkasih.
           </motion.p>
