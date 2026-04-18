@@ -451,10 +451,12 @@ function EditArrows({
   x,
   y,
   onAdd,
+  familyType,
 }: {
   x: number;
   y: number;
   onAdd: (type: "child" | "spouse" | "sibling" | "parent") => void;
+  familyType?: "genealogy" | "spiritual";
 }) {
   const DISTANCE = 55; // Slightly more distance for labels
   const ARROW_SIZE = 36;
