@@ -21,6 +21,13 @@ async function main() {
 
   console.log(`Family created with ID: ${newFamily.id}`);
 
+  // Add family access for the user (Admin)
+  await db.insert(require("../src/lib/db/schema").familyAccess).values({
+    familyId: newFamily.id,
+    userId: userId,
+    role: "admin",
+  });
+
   // Data Patriark India (P1 - P27)
   const indiaPatriarchs = [
     { fullName: "Maha Kasyapa", nickname: "Kasyapa", mandarinName: "摩訶迦葉", gender: "M", metadata: { title: "Patriark ke-1 India", lineage: "India", period: "Zaman Buddha Sakyamuni" } },

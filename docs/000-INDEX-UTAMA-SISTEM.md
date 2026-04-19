@@ -13,6 +13,7 @@
 | `Walkthrough-0021` | [Implementasi Galeri & High-Res Toggle](./walkthrough-0021-galeri-highres.md) | 13-04-2026 | 13-04-2026 |
 | `Walkthrough-0022` | [Perbaikan Etnis Database-Driven](./walkthrough-0022-perbaikan-etnis.md) | 13-04-2026 | 13-04-2026 |
 | `Walkthrough-0023` | [Redesign Halaman About (Stitch Style)](./walkthrough-0023-redesign-about.md) | 13-04-2026 | 13-04-2026 |
+| `Walkthrough-0024` | [Implementasi Modul Silsilah Spiritual & Seeding Patriark](./Walkthrough-0024-silsilah-spiritual.md) | 19-04-2026 | 19-04-2026 |
 | `Guide-0012` | [Walkthrough: Master Data Etnis Aksara](./Guide-0012-master-data-etnis-aksara.md) | 20-03-2026 | 05-04-2026 |
 | `Guide-0013` | [Walkthrough: Integrasi Font Regional](./Guide-0013-integrasi-font-regional.md) | 05-04-2026 | 05-04-2026 |
 | `Guide-0023` | [Panduan: Mode Demo vs Live](./Guide-0023-mode-demo-vs-live.md) | 13-04-2026 | 13-04-2026 |
@@ -28,4 +29,4 @@
 | `Planning-0022` | [Sinkronisasi Etnis Database & Frontend](./Planning-0022-sinkronisasi-etnis.md) | 13-04-2026 | 13-04-2026 |
 
 ---
-*Dibuat oleh Antigravity pada 13-04-2026*
+*Dibuat oleh Antigravity pada 13-04-2026. Update terakhir: 19-04-2026*
